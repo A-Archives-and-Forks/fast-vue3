@@ -9,7 +9,8 @@ dist-ssr
 .env.local
 .env.*.local
 .eslintcache
-
+types/auto-imports.d.ts
+types/components.d.ts
 
 # Log files
 npm-debug.log*

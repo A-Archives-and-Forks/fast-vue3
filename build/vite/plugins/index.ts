@@ -2,7 +2,7 @@
  * @name createVitePlugins
  * @description 封装plugins数组统一调用
  */
-import { PluginOption } from 'vite';
+import type { PluginOption } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import VitePluginCertificate from 'vite-plugin-mkcert';
@@ -18,6 +18,7 @@ import { ConfigRestartPlugin } from './restart';
 import { ConfigProgressPlugin } from './progress';
 import { ConfigImageminPlugin } from './imagemin';
 import { ConfigUnocssPlugin } from './unocss';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export function createVitePlugins(viteEnv: ViteEnv, isBuild: boolean) {
   const { VITE_USE_MOCK, VITE_USE_COMPRESS } = viteEnv;
@@ -56,17 +57,29 @@ export function createVitePlugins(viteEnv: ViteEnv, isBuild: boolean) {
   vitePlugins.push(ConfigSvgIconsPlugin(isBuild));
 
   // vite-plugin-mock
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   VITE_USE_MOCK && vitePlugins.push(ConfigMockPlugin(isBuild));
 
   // rollup-plugin-visualizer
   vitePlugins.push(ConfigVisualizerConfig());
+
+  vitePlugins.push(
+    viteStaticCopy({
+      targets: [
+        {
+          src: './node_modules/@idux/components/style/core/reset*.css',
+          dest: 'assets',
+        },
+      ],
+    }),
+  );
 
   if (isBuild) {
     // vite-plugin-imagemin
     vitePlugins.push(ConfigImageminPlugin());
 
     // 开启.gz压缩  rollup-plugin-gzip
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     VITE_USE_COMPRESS && vitePlugins.push(ConfigCompressPlugin());
   }
 

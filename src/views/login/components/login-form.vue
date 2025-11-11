@@ -27,7 +27,8 @@
 </template>
 
 <script lang="ts" setup>
-  import { ElMessage, FormInstance, FormRules } from 'element-plus';
+  import type { FormInstance, FormRules } from 'element-plus';
+  import { ElMessage } from 'element-plus';
   import { useUserStore } from '@/store';
 
   const router = useRouter();

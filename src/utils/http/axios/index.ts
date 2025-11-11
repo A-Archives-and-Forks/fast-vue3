@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { showMessage } from './status';
-import { IResponse } from './type';
+import type { IResponse } from './type';
 import { getToken } from '@/utils/auth';
 
 const service: AxiosInstance = axios.create({

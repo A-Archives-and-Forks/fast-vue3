@@ -1,5 +1,6 @@
-import { MockMethod } from 'vite-plugin-mock';
-import { successResult, errorResult, requestParams, getRequestToken } from '@/utils/result';
+import type { MockMethod } from 'vite-plugin-mock';
+import type { requestParams } from '@/utils/result';
+import { successResult, errorResult, getRequestToken } from '@/utils/result';
 import { TokenPrefix } from '@/utils/auth';
 
 export function createFakeUserList() {

@@ -21,8 +21,6 @@ export const AutoRegistryComponents = () => {
     extensions: ['vue', 'md'],
     deep: true,
     dts: 'types/components.d.ts',
-    directoryAsNamespace: false,
-    globalNamespaces: [],
     directives: true,
     include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
     exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/, /[\\/]\.nuxt[\\/]/],
@@ -38,7 +36,7 @@ export const AutoRegistryComponents = () => {
       }),
       NaiveUiResolver(),
       DevUiResolver(),
-      IduxResolver({ importStyle: 'css', importStyleTheme: 'default' }),
+      IduxResolver({ importStyle: 'css' }),
     ],
   });
 };

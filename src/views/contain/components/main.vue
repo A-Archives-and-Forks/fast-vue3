@@ -59,8 +59,8 @@
     });
   };
   onMounted(() => {
-    var bar = document.getElementById('my-echartsbar');
-    var line = document.getElementById('my-echartsline');
+    const bar = document.getElementById('my-echartsbar');
+    const line = document.getElementById('my-echartsline');
     changeBar(bar);
     changeLine(line);
   });

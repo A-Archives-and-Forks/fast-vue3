@@ -12,7 +12,7 @@ export function wrapperEnv(envConf: Recordable): ViteEnv {
     if (envName === 'VITE_PROXY' && realName) {
       try {
         realName = JSON.parse(realName.replace(/'/g, '"'));
-      } catch (error) {
+      } catch {
         realName = '';
       }
     }
