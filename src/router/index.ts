@@ -1,10 +1,11 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
-import { routes } from 'vue-router/auto-routes';
-import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
+import NProgress from 'nprogress';
+import { createRouter, createWebHashHistory } from 'vue-router';
+import { routes } from 'vue-router/auto-routes';
+
 const baseURL = import.meta.env.VITE_BASE_URL;
-console.log(baseURL);
+
 //导入生成的路由数据
 const router = createRouter({
   history: createWebHashHistory(baseURL),
@@ -16,7 +17,7 @@ router.beforeEach(async (_to, _from, next) => {
   next();
 });
 
-router.afterEach((_to) => {
+router.afterEach(() => {
   NProgress.done();
 });
 

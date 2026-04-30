@@ -10,7 +10,7 @@ export const framework = [
   {
     content: '号称新一代前端开发与构建工具🎆，极速启动、原生ESM、HMR热重载、TS支持、Rollup插件等等<br>2022超火生态还等什么？💕',
     avatar: 'https://vitejs.cn/logo.svg',
-    title: 'Vite2.7',
+    title: 'Vite',
     github: 'https://github.com/vitejs/vite',
     color: 'bg-orange-400',
     author: '新一代构建工具',
@@ -18,7 +18,7 @@ export const framework = [
   {
     content: '2021全球语言持续霸榜，始于JavaScript，归于JavaScript🎆，构建大型应用程序、先进的JS语法支持、大厂前端必备基础。🛵',
     avatar: 'https://raw.githubusercontent.com/remojansen/logo.ts/master/ts.png',
-    title: 'TypeScript4.5',
+    title: 'TypeScript',
     github: 'https://github.com/Microsoft/TypeScript',
     color: 'bg-cyan',
     author: 'JS的超集',

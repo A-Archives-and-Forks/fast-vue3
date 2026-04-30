@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia';
+
 import type { LoginData } from '@/api/user/index';
-import { login as userLogin, logout as userLogout, getUserProfile } from '@/api/user/index';
-import { setToken, clearToken } from '@/utils/auth';
+import { getUserProfile, login as userLogin, logout as userLogout } from '@/api/user/index';
+import { clearToken, setToken } from '@/utils/auth';
+
 import type { UserState } from './types';
 
 export const useUserStore = defineStore('user', {
@@ -26,7 +28,7 @@ export const useUserStore = defineStore('user', {
   actions: {
     switchRoles() {
       return new Promise((resolve) => {
-        this.role = this.role === 'user' ? 'user' : 'admin';
+        this.role = this.role === 'admin' ? 'user' : 'admin';
         resolve(this.role);
       });
     },

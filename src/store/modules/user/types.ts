@@ -5,7 +5,6 @@ export interface UserState {
   real_name?: string;
   avatar?: string;
   desc?: string;
-  password?: string;
   token?: string;
   organization?: string;
   location?: string;

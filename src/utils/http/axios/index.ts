@@ -1,8 +1,10 @@
+import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
+
+import { getToken, TokenPrefix } from '@/utils/auth';
+
 import { showMessage } from './status';
 import type { IResponse } from './type';
-import { getToken } from '@/utils/auth';
 
 const service: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_APP_API_BASEURL,
@@ -14,7 +16,7 @@ service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = getToken();
     if (token) {
-      config.headers.authorization = `${token}`;
+      config.headers.authorization = `${TokenPrefix}${token}`;
     }
     return config;
   },
@@ -65,11 +67,11 @@ export function post<T = any>(config: AxiosRequestConfig): Promise<T> {
 }
 
 export function put<T = any>(config: AxiosRequestConfig): Promise<T> {
-  return request({ ...config, method: 'put' });
+  return request({ ...config, method: 'PUT' });
 }
 
 export function del<T = any>(config: AxiosRequestConfig): Promise<T> {
-  return request({ ...config, method: 'delete' });
+  return request({ ...config, method: 'DELETE' });
 }
 
 export default request;

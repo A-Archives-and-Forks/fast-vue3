@@ -39,7 +39,7 @@
                 </el-tooltip>
                 <a
                   href="https://github.com/MaleWeb/fast-vue3"
-                  target="_bank"
+                  target="_blank"
                   class="block ml-6 text-slate-400 hover:text-slate-500 dark:hover:text-slate-300"
                 >
                   <SvgIcon name="svg-github" size="small" color="#999999" />
@@ -54,11 +54,13 @@
 </template>
 
 <script setup lang="ts">
-  import SvgIcon from '../SvgIcon/index.vue';
+  import { Moon, Sunny } from '@element-plus/icons-vue';
   // import { ref } from 'vue'
   import { useDark, useToggle } from '@vueuse/core';
+
   import { useAppStore } from '@/store';
-  import { Sunny, Moon } from '@element-plus/icons-vue';
+
+  import SvgIcon from '../SvgIcon/index.vue';
 
   // const title = ref('I want to study typescript')
   // 检测浏览器系统主题

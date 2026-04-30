@@ -17,9 +17,11 @@
 
 <script lang="ts" setup>
   import { ref } from 'vue';
+
+  import { useAppStore } from '@/store/modules/app';
+
   import * as router from '../../../router/root';
   import SubAside from './subAside.vue'; // 将子组件引入
-  import { useAppStore } from '@/store/modules/app';
 
   const navs = router.default; // 过滤拿到数据
   const isCollapse = ref(false); // 是否收起，默认不收起
@@ -29,11 +31,11 @@
     return appStore.theme;
   });
 
-  const handleOpen = (key: string, keyPath: string[]) => {
-    console.log(key, keyPath);
+  const handleOpen = () => {
+    // Menu opened
   };
-  const handleClose = (key: string, keyPath: string[]) => {
-    console.log(key, keyPath);
+  const handleClose = () => {
+    // Menu closed
   };
 </script>
 

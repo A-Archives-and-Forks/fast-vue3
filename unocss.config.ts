@@ -7,8 +7,6 @@ export default defineConfig({
     },
   },
   presets: [presetAttributify(), presetIcons(), presetUno()],
-  shortcuts: [],
-  rules: [],
   theme: {
     colors: {
       primary: 'var(--primary-color)',

@@ -1,5 +1,5 @@
 <template>
-  <svg aria-hidden="true" class="svg-icon-spin" :class="calsses">
+  <svg aria-hidden="true" class="svg-icon-spin" :class="classes">
     <use :xlink:href="symbolId" :fill="color" />
   </svg>
 </template>
@@ -24,7 +24,7 @@
     },
   });
   const symbolId = computed(() => `#${props.prefix}-${props.name}`);
-  const calsses = computed(() => {
+  const classes = computed(() => {
     return {
       [`sdms-size-${props.size}`]: props.size,
     };

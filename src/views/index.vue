@@ -11,7 +11,7 @@
     </main>
     <article class="space-y-20 sm:space-y-32 md:space-y-40 lg:space-y-44">
       <ul class="flex flex-wrap items-center justify-center py-6 sm:px-20 lg:px-36 xl:px-20 sm:justify-start lg:justify-start">
-        <li v-for="(item, index) in data" :key="index * 1.1" class="px-3 pt-4 md:px-4 sm:pt-5 md:pb-8">
+        <li v-for="item in data" :key="item.title" class="px-3 pt-4 md:px-4 sm:pt-5 md:pb-8">
           <figure class="flex-none shadow-lg rounded-xl w-80 md:w-100">
             <blockquote
               class="px-6 py-8 text-lg font-semibold leading-8 bg-white rounded-t-xl md:p-5 md:text-base md:leading-8 text-slate-700 dark:text-slate-300 dark:bg-slate-800 dark:highlight-white/5"
@@ -43,10 +43,11 @@
 </template>
 
 <script setup lang="ts">
+  import Header from '@/components/Header/index.vue';
   import SvgIcon from '@/components/SvgIcon/index.vue';
   import { useAppStore } from '@/store/modules/app';
+
   import { framework } from './data';
-  import Header from '@/components/Header/index.vue';
 
   const appStore = useAppStore();
   const data = ref(framework);

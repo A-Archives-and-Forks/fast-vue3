@@ -55,6 +55,7 @@ module.exports = {
         ignore: ['after-comment', 'first-nested'],
       },
     ],
+    'declaration-property-value-no-unknown': null,
     'unit-no-unknown': [true, { ignoreUnits: ['rpx'] }],
     'order/order': [
       [

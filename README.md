@@ -3,20 +3,19 @@
 </div>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/-Vue3-34495e?logo=vue.j" />
-    <img src="https://img.shields.io/badge/-Vite4.0-646cff?logo=vite&logoColor=white" />
-    <img src="https://img.shields.io/badge/-TypeScript-blue?logo=typescript&logoColor=white" />
-    <img src="https://img.shields.io/badge/-Pinia-yellow?logo=picpay&logoColor=white" />
-    <img src="https://img.shields.io/badge/-ESLint-4b32c3?logo=eslint&logoColor=white" />
+    <img src="https://img.shields.io/badge/-Vue3.5-34495e?logo=vue.j" />
+    <img src="https://img.shields.io/badge/-Vite7-646cff?logo=vite&logoColor=white" />
+    <img src="https://img.shields.io/badge/-TypeScript5.9-blue?logo=typescript&logoColor=white" />
+    <img src="https://img.shields.io/badge/-Pinia3-yellow?logo=picpay&logoColor=white" />
+    <img src="https://img.shields.io/badge/-ESLint9-4b32c3?logo=eslint&logoColor=white" />
     <img src="https://img.shields.io/badge/-pnpm-F69220?logo=pnpm&logoColor=white" />
     <img src="https://img.shields.io/badge/-Axios-008fc7?logo=axios.js&logoColor=white" />
     <img src="https://img.shields.io/badge/-Prettier-ef9421?logo=Prettier&logoColor=white" alt="Prettier">
     <img src="https://img.shields.io/badge/-Less-1D365D?logo=less&logoColor=white" alt="Less">
-    <img src="https://img.shields.io/badge/-Tailwind%20CSS-06B6D4?logo=Tailwind%20CSS&logoColor=white" alt="Taiwind">
-    <img src="" alt="">
+    <img src="https://img.shields.io/badge/-UnoCSS-333?logo=unocss&logoColor=white" alt="UnoCSS">
 </p>
 
-一个开箱即用，快速搭建大型应用的 Vue3 + Vite4.0 + TypeScript+...模板框架。集成了各类插件，并进行了模块化和按需加载的优化，可以放心使用。 [文档](https://tobe-fe-dalao.github.io/fast-vue3-site/)
+一个开箱即用，快速搭建大型应用的 Vue 3.5 + Vite 7 + TypeScript 5.9 + Pinia 3 模板框架。集成了 7+ UI 组件库、文件路由、自动导入、UnoCSS 原子化样式等，并进行了模块化和按需加载的优化。 [文档](https://tobe-fe-dalao.github.io/fast-vue3-site/)
 
 简体中文 | [English](./README-en.md) | [日本語](./README.ja-JP.md)。
 
