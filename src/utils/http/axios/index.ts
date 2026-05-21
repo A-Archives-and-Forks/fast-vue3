@@ -32,29 +32,33 @@ service.interceptors.response.use(
       return response;
     }
     showMessage(response.status);
-    return response;
+    return Promise.reject(new Error(showMessage(response.status)));
   },
-  // 请求失败
-  (error: any) => {
+  (error: AxiosError) => {
     const { response } = error;
     if (response) {
-      // 请求已发出，但是不在2xx的范围
-      showMessage(response.status);
-      return Promise.reject(response.data);
+      // 请求已发出，但是不在 2xx 的范围
+      const msg = showMessage(response.status);
+      return Promise.reject(new Error(msg));
     }
-    showMessage('网络连接异常,请稍后再试!');
+    if (!error.response) {
+      return Promise.reject(new Error('网络连接异常，请稍后再试！'));
+    }
+    return Promise.reject(error);
   },
 );
 
 const request = <T = any>(config: AxiosRequestConfig): Promise<T> => {
-  const conf = config;
-  return new Promise((resolve) => {
-    service.request<any, AxiosResponse<IResponse>>(conf).then((res: AxiosResponse<IResponse>) => {
-      const {
-        data: { result },
-      } = res;
-      resolve(result as T);
-    });
+  return new Promise((resolve, reject) => {
+    service
+      .request<any, AxiosResponse<IResponse>>(config)
+      .then((res: AxiosResponse<IResponse>) => {
+        const {
+          data: { result },
+        } = res;
+        resolve(result as T);
+      })
+      .catch(reject);
   });
 };
 

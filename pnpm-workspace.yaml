@@ -1,3 +1,10 @@
-allowBuilds:
-  esbuild: true
-  vue-demi: true
+# pnpm workspace 配置
+# 当前为 Polyrepo 阶段，仅包含根项目
+# Monorepo 阶段将扩展为 apps/*, packages/*, internal/*
+packages:
+  - '.'
+
+# 允许某些 native 依赖重新编译
+onlyBuiltDependencies:
+  - esbuild
+  - vue-demi

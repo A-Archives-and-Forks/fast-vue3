@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-  import echarts from '../../../common/echarts';
+  import echarts from '@/utils/echarts';
 
   const changeBar = (bar) => {
     const myEChart = echarts.init(bar);

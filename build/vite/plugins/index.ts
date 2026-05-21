@@ -2,23 +2,23 @@
  * @name createVitePlugins
  * @description 封装plugins数组统一调用
  */
-import type { PluginOption } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
+import type { PluginOption } from 'vite';
 import VitePluginCertificate from 'vite-plugin-mkcert';
 import vueSetupExtend from 'vite-plugin-vue-setup-extend';
-import { ConfigSvgIconsPlugin } from './svgIcons';
-import { AutoRegistryComponents } from './component';
+
 import { AutoImportDeps } from './autoImport';
-import { ConfigMockPlugin } from './mock';
-import { ConfigVisualizerConfig } from './visualizer';
+import { AutoRegistryComponents } from './component';
 import { ConfigCompressPlugin } from './compress';
-import { ConfigPagesPlugin } from './pages';
-import { ConfigRestartPlugin } from './restart';
-import { ConfigProgressPlugin } from './progress';
 import { ConfigImageminPlugin } from './imagemin';
+import { ConfigMockPlugin } from './mock';
+import { ConfigPagesPlugin } from './pages';
+import { ConfigProgressPlugin } from './progress';
+import { ConfigRestartPlugin } from './restart';
+import { ConfigSvgIconsPlugin } from './svgIcons';
 import { ConfigUnocssPlugin } from './unocss';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
+import { ConfigVisualizerConfig } from './visualizer';
 
 export function createVitePlugins(viteEnv: ViteEnv, isBuild: boolean) {
   const { VITE_USE_MOCK, VITE_USE_COMPRESS } = viteEnv;
@@ -26,16 +26,14 @@ export function createVitePlugins(viteEnv: ViteEnv, isBuild: boolean) {
   const vitePlugins: (PluginOption | PluginOption[])[] = [
     // 自动生成路由
     ConfigPagesPlugin(),
-    // vue支持
+    // Vue 核心支持
     vue(),
-    // JSX支持
+    // JSX 支持
     vueJsx(),
-    // setup语法糖组件名支持
+    // setup 语法糖组件名支持
     vueSetupExtend(),
-    // 提供https证书
-    VitePluginCertificate({
-      source: 'coding',
-    }),
+    // 提供 https 证书（开发环境）
+    VitePluginCertificate({ source: 'coding' }),
   ];
 
   // 自动按需引入组件
@@ -50,37 +48,28 @@ export function createVitePlugins(viteEnv: ViteEnv, isBuild: boolean) {
   // 构建时显示进度条
   vitePlugins.push(ConfigProgressPlugin());
 
-  // unocss
+  // UnoCSS
   vitePlugins.push(ConfigUnocssPlugin());
 
-  // vite-plugin-svg-icons
+  // SVG 图标
   vitePlugins.push(ConfigSvgIconsPlugin(isBuild));
 
-  // vite-plugin-mock
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  VITE_USE_MOCK && vitePlugins.push(ConfigMockPlugin(isBuild));
+  // Mock 服务
+  if (VITE_USE_MOCK) {
+    vitePlugins.push(ConfigMockPlugin(isBuild));
+  }
 
-  // rollup-plugin-visualizer
+  // 构建产物分析
   vitePlugins.push(ConfigVisualizerConfig());
 
-  vitePlugins.push(
-    viteStaticCopy({
-      targets: [
-        {
-          src: './node_modules/@idux/components/style/core/reset*.css',
-          dest: 'assets',
-        },
-      ],
-    }),
-  );
-
   if (isBuild) {
-    // vite-plugin-imagemin
+    // 图片压缩
     vitePlugins.push(ConfigImageminPlugin());
 
-    // 开启.gz压缩  rollup-plugin-gzip
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    VITE_USE_COMPRESS && vitePlugins.push(ConfigCompressPlugin());
+    // Gzip 压缩
+    if (VITE_USE_COMPRESS) {
+      vitePlugins.push(ConfigCompressPlugin());
+    }
   }
 
   return vitePlugins;

@@ -5,10 +5,10 @@
   "scripts": {
     "dev": "vite --mode development",
     "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview",
     "build:dev": "vite build --mode development",
     "build:pro": "vite build --mode production",
-    "serve": "vite preview",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit",
     "plop": "plop",
     "clean:cache": "rimraf node_modules/.cache/ && rimraf node_modules/.vite",
     "clean:lib": "rimraf node_modules",
@@ -17,11 +17,11 @@
     "lint:stylelint": "stylelint --cache --fix \"**/*.{vue,less,postcss,css,scss}\" --cache --cache-location node_modules/.cache/stylelint/",
     "lint:lint-staged": "lint-staged",
     "prepare": "husky",
-    "commit": "git add . && git-cz",
-    "deps": "yarn upgrade-interactive --latest"
+    "commit": "git-cz"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
+    "@arco-design/web-vue": "^2.57.0",
     "@devui-design/icons": "^1.4.0",
     "@element-plus/icons-vue": "^2.3.2",
     "@idux/cdk": "^2.11.0",
@@ -47,7 +47,6 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
-    "@arco-design/web-vue": "^2.57.0",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@tdesign-vue-next/auto-import-resolver": "^0.1.2",
@@ -68,16 +67,13 @@
     "autoprefixer": "^10.4.22",
     "cz-git": "^1.12.0",
     "eslint": "^9.39.1",
-    "eslint-define-config": "^2.1.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-vue": "^10.5.1",
     "globals": "^16.5.0",
     "husky": "^9.1.7",
-    "import": "^0.0.6",
     "less": "^4.4.2",
-    "less-loader": "^12.3.0",
     "lint-staged": "^16.2.6",
     "mockjs": "^1.1.0",
     "nprogress": "^0.2.0",

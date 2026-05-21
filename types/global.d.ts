@@ -1,4 +1,4 @@
-import type { VNodeChild, ComponentPublicInstance, FunctionalComponent } from 'vue';
+import type { ComponentPublicInstance, FunctionalComponent, VNodeChild } from 'vue';
 
 declare global {
   // vue
@@ -33,9 +33,12 @@ declare global {
   }
 
   declare interface ViteEnv {
-    VITE_OPEN_PROXY?: boolean;
+    VITE_BASE_URL: string;
+    VITE_PORT: number;
+    VITE_OPEN_PROXY: boolean;
     VITE_USE_MOCK: boolean;
     VITE_USE_COMPRESS: boolean;
+    VITE_APP_API_BASEURL: string;
   }
 
   declare function parseInt(s: string | number, radix?: number): number;
