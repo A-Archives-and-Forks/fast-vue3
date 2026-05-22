@@ -1,0 +1,20 @@
+{
+  "name": "@fast-vue3/stores",
+  "version": "1.0.0",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "dependencies": {
+    "@fast-vue3/shared": "workspace:*",
+    "@fast-vue3/utils": "workspace:*",
+    "pinia": "catalog:",
+    "pinia-plugin-persistedstate": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  }
+}

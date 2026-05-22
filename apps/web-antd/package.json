@@ -1,0 +1,41 @@
+{
+  "name": "@fast-vue3/web-antd",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --mode development",
+    "build": "vue-tsc --noEmit && vite build --mode production",
+    "build:dev": "vite build --mode development",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@ant-design/icons-vue": "catalog:",
+    "@fast-vue3/access": "workspace:*",
+    "@fast-vue3/locales": "workspace:*",
+    "@fast-vue3/request": "workspace:*",
+    "@fast-vue3/shared": "workspace:*",
+    "@fast-vue3/stores": "workspace:*",
+    "@fast-vue3/utils": "workspace:*",
+    "@vueuse/core": "catalog:",
+    "ant-design-vue": "catalog:",
+    "nprogress": "catalog:",
+    "pinia": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  },
+  "devDependencies": {
+    "@fast-vue3/eslint-config": "workspace:*",
+    "@fast-vue3/prettier-config": "workspace:*",
+    "@fast-vue3/tsconfig": "workspace:*",
+    "@fast-vue3/vite-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/nprogress": "catalog:",
+    "unplugin-vue-components": "catalog:",
+    "less": "catalog:",
+    "typescript": "catalog:",
+    "unocss": "catalog:",
+    "vue-tsc": "catalog:"
+  }
+}

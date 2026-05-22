@@ -1,0 +1,18 @@
+{
+  "name": "@fast-vue3/stylelint-config",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./index.mjs"
+    }
+  },
+  "files": ["index.mjs"],
+  "dependencies": {
+    "stylelint-config-standard": "catalog:",
+    "stylelint-order": "catalog:",
+    "postcss-html": "catalog:",
+    "postcss-less": "catalog:"
+  }
+}

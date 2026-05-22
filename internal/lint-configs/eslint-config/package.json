@@ -1,0 +1,20 @@
+{
+  "name": "@fast-vue3/eslint-config",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./index.mjs"
+    }
+  },
+  "files": ["index.mjs"],
+  "dependencies": {
+    "@vue/eslint-config-prettier": "catalog:",
+    "@vue/eslint-config-typescript": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-simple-import-sort": "catalog:",
+    "eslint-plugin-vue": "catalog:",
+    "globals": "catalog:"
+  }
+}

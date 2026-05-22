@@ -1,0 +1,16 @@
+{
+  "name": "@fast-vue3/utils",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "dependencies": {
+    "@fast-vue3/shared": "workspace:*",
+    "dayjs": "catalog:",
+    "qs": "catalog:"
+  }
+}

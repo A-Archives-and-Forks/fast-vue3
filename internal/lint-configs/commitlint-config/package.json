@@ -1,0 +1,14 @@
+{
+  "name": "@fast-vue3/commitlint-config",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    ".": {
+      "default": "./index.js"
+    }
+  },
+  "files": ["index.js"],
+  "dependencies": {
+    "@commitlint/config-conventional": "catalog:"
+  }
+}

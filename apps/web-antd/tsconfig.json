@@ -1,0 +1,17 @@
+{
+  "extends": "@fast-vue3/tsconfig/web-app.json",
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.vue",
+    "types/**/*.d.ts",
+    "mock/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "#/*": ["./types/*"]
+    }
+  }
+}
