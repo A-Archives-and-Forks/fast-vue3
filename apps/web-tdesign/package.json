@@ -28,6 +28,7 @@
     "@fast-vue3/vite-config": "workspace:*",
     "@tdesign-vue-next/auto-import-resolver": "catalog:",
     "@types/node": "catalog:",
+    "vite": "catalog:",
     "unplugin-vue-components": "catalog:",
     "less": "catalog:",
     "typescript": "catalog:",

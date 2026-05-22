@@ -27,6 +27,7 @@
     "@fast-vue3/tsconfig": "workspace:*",
     "@fast-vue3/vite-config": "workspace:*",
     "@types/node": "catalog:",
+    "vite": "catalog:",
     "unplugin-vue-components": "catalog:",
     "typescript": "catalog:",
     "unocss": "catalog:",

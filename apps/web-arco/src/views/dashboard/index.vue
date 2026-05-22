@@ -28,10 +28,10 @@
 </template>
 
 <script setup lang="ts">
-  const statCards = [
+  const statCards: Array<{ title: string; value: number }> = [
     { title: '今日访问', value: 1024 },
     { title: '在线用户', value: 32 },
     { title: '待处理任务', value: 8 },
-    { title: '系统状态', value: '正常' },
+    { title: '系统正常率', value: 100 },
   ];
 </script>

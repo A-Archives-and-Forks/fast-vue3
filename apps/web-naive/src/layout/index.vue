@@ -51,7 +51,7 @@
   const message = useMessage();
 
   const menuOptions = [
-    { label: '首页', key: '/' },
+    { label: '首页', key: '/home' },
     { label: '仪表盘', key: '/dashboard' },
   ];
 

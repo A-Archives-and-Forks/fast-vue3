@@ -1,3 +1,4 @@
+import type { RoleType } from '@fast-vue3/shared';
 import { http } from '../http';
 
 interface LoginParams {
@@ -16,7 +17,7 @@ export const userApi = {
   logout: () => http.post<void>({ url: '/user/logout' }),
 
   getProfile: () =>
-    http.get<{ userName: string; avatar: string; role: string }>({
+    http.get<{ userName: string; avatar: string; role: RoleType }>({
       url: '/user/profile',
     }),
 };

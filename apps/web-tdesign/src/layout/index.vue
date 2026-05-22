@@ -10,7 +10,7 @@
         :collapsed="collapsed"
         @change="router.push($event as string)"
       >
-        <t-menu-item value="/">
+        <t-menu-item value="/home">
           <template #icon><t-icon name="home" /></template>
           首页
         </t-menu-item>

@@ -70,6 +70,12 @@ catalog:
   eslint: ^9.39.1
   prettier: ^3.6.2
   stylelint: ^16.25.0
+  oxlint: ^1.6.0
+  oxfmt: ^0.47.0
+  cac: ^7.0.0
+  execa: ^9.5.2
+  consola: ^3.4.2
+  '@clack/prompts': ^0.10.1
   '@vue/eslint-config-typescript': ^14.6.0
   '@vue/eslint-config-prettier': ^10.2.0
   'eslint-plugin-vue': ^10.5.1

@@ -1,0 +1,28 @@
+{
+  "name": "@fast-vue3/oxfmt-config",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "stub": "pnpm exec tsdown"
+  },
+  "dependencies": {
+    "oxfmt": "catalog:"
+  },
+  "devDependencies": {
+    "@fast-vue3/tsconfig": "workspace:*",
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
+  }
+}

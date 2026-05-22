@@ -1,0 +1,30 @@
+{
+  "name": "@fast-vue3/vsh",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "vsh": "./bin/vsh.mjs"
+  },
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "stub": "pnpm exec tsdown"
+  },
+  "dependencies": {
+    "cac": "catalog:",
+    "consola": "catalog:",
+    "execa": "catalog:"
+  },
+  "devDependencies": {
+    "@fast-vue3/tsconfig": "workspace:*",
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
+  }
+}

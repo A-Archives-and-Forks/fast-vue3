@@ -15,7 +15,7 @@
         theme="dark"
         @menu-item-click="router.push($event)"
       >
-        <a-menu-item key="/">
+        <a-menu-item key="/home">
           <template #icon><icon-home /></template>
           首页
         </a-menu-item>
@@ -49,10 +49,10 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { useUserStore } from '@fast-vue3/stores';
+  import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
 
   const router = useRouter();
   const userStore = useUserStore();

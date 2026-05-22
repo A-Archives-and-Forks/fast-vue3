@@ -15,7 +15,7 @@
         mode="inline"
         @click="handleMenuClick"
       >
-        <AMenuItem key="/">
+        <AMenuItem key="/home">
           <template #icon><HomeOutlined /></template>
           首页
         </AMenuItem>
@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   import { message } from 'ant-design-vue';
   import {
@@ -76,7 +76,7 @@
   const route = useRoute();
   const userStore = useUserStore();
   const collapsed = ref(false);
-  const selectedKeys = ref([route.path]);
+  const selectedKeys = computed(() => [route.path]);
 
   function handleMenuClick({ key }: { key: string }) {
     router.push(key);
