@@ -7,10 +7,20 @@ const oxfmtConfig: OxfmtConfig = defineOxfmtConfig({
   proseWrap: 'never',
   semi: true,
   singleQuote: true,
+  sortPackageJson: false,
   trailingComma: 'all',
   overrides: [
     {
-      files: ['*.json', '*.json5', '*.jsonc', '**/*.json', '**/*.json5', '**/*.jsonc'],
+      files: [
+        '*.json',
+        '*.json5',
+        '*.jsonc',
+        '*.code-workspace',
+        '**/*.json',
+        '**/*.json5',
+        '**/*.jsonc',
+        '**/*.code-workspace',
+      ],
       options: {
         trailingComma: 'none',
       },

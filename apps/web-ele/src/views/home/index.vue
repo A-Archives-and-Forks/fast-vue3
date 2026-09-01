@@ -1,52 +1,106 @@
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const stats = [
+  { label: '总用户', value: '12,480', color: '#409EFF' },
+  { label: '今日访问', value: '3,256', color: '#67C23A' },
+  { label: '活跃应用', value: '5', color: '#722ed1' },
+  { label: '系统正常率', value: '99.9%', color: '#E6A23C' },
+];
+
+const actions = [
+  { icon: '📊', label: '仪表盘', path: '/dashboard' },
+  { icon: '👥', label: '用户管理', path: '/user' },
+  { icon: '🧩', label: '组件展示', path: '/components' },
+  { icon: '👤', label: '个人中心', path: '/profile' },
+  { icon: '⚙️', label: '系统设置', path: '/settings' },
+  { icon: '📖', label: '关于项目', path: '/about' },
+];
+
+const techStack = [
+  { name: 'Vue 3.5', type: 'success' as const },
+  { name: 'Element Plus', type: 'primary' as const },
+  { name: 'Vite 8', type: 'warning' as const },
+  { name: 'TypeScript 6', type: 'info' as const },
+  { name: 'Pinia 3', type: 'danger' as const },
+  { name: 'Vue Router 4', type: 'success' as const },
+];
+</script>
+
 <template>
-  <div class="p-6">
-    <div class="mb-6">
-      <h2 class="text-2xl font-bold text-gray-800">欢迎使用 Fast Vue3 · Element Plus</h2>
-      <p class="text-gray-500 mt-2">基于 Monorepo 工程平台，集成五大 UI 生态的 Vue3 管理后台模板</p>
+  <div style="padding: 24px">
+    <!-- Welcome Section -->
+    <div style="margin-bottom: 24px">
+      <h2 style="margin: 0 0 8px; font-size: 24px; font-weight: bold">
+        欢迎回来
+      </h2>
+      <p style="margin: 0; color: #909399">
+        基于 Monorepo 工程平台，集成多 UI 生态的 Vue3 管理后台模板
+      </p>
+      <el-divider />
     </div>
 
-    <el-row :gutter="16" class="mb-6">
-      <el-col v-for="item in techStack" :key="item.name" :xs="24" :sm="12" :lg="8" class="mb-4">
-        <el-card shadow="hover" class="h-full">
-          <div class="flex items-start gap-3">
-            <el-tag :type="item.tagType" size="small">{{ item.type }}</el-tag>
-            <div>
-              <div class="font-semibold text-gray-800">{{ item.name }}</div>
-              <div class="text-sm text-gray-500 mt-1">{{ item.desc }}</div>
+    <!-- Quick Stats Row -->
+    <el-row :gutter="16" style="margin-bottom: 24px">
+      <el-col v-for="stat in stats" :key="stat.label" :span="6">
+        <el-card
+          shadow="never"
+          style="border-left: 4px solid"
+          :style="{ borderLeftColor: stat.color }"
+        >
+          <div style="text-align: center">
+            <div
+              :style="{
+                fontSize: '28px',
+                fontWeight: 'bold',
+                color: stat.color,
+              }"
+            >
+              {{ stat.value }}
+            </div>
+            <div style="margin-top: 8px; font-size: 14px; color: #909399">
+              {{ stat.label }}
             </div>
           </div>
         </el-card>
       </el-col>
     </el-row>
 
-    <el-card title="快速导航" shadow="never">
-      <template #header>
-        <span class="font-semibold">快速导航</span>
-      </template>
+    <!-- Quick Actions Section -->
+    <el-card header="快捷操作" shadow="never" style="margin-bottom: 24px">
+      <el-row :gutter="16">
+        <el-col v-for="action in actions" :key="action.path" :span="4">
+          <el-card
+            shadow="hover"
+            style="text-align: center; cursor: pointer"
+            @click="router.push(action.path)"
+          >
+            <div style="margin-bottom: 8px; font-size: 32px">
+              {{ action.icon }}
+            </div>
+            <div style="font-size: 14px; color: #606266">
+              {{ action.label }}
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+    </el-card>
+
+    <!-- Tech Stack Section -->
+    <el-card header="技术栈" shadow="never">
       <el-space wrap>
-        <el-button type="primary" @click="router.push('/dashboard')">
-          <el-icon><DataAnalysis /></el-icon>
-          查看仪表盘
-        </el-button>
+        <el-tag
+          v-for="tech in techStack"
+          :key="tech.name"
+          :type="tech.type"
+          size="large"
+          effect="plain"
+        >
+          {{ tech.name }}
+        </el-tag>
       </el-space>
     </el-card>
   </div>
 </template>
-
-<script setup lang="ts">
-  import { useRouter } from 'vue-router';
-  import { DataAnalysis } from '@element-plus/icons-vue';
-
-  const router = useRouter();
-
-  const techStack = [
-    { name: 'Vue 3.5', desc: 'Composition API + script setup', type: 'Core', tagType: 'success' as const },
-    { name: 'Element Plus 2', desc: '企业级 UI 组件库', type: 'UI', tagType: 'primary' as const },
-    { name: 'Vite 7', desc: '极速构建工具', type: 'Build', tagType: '' as const },
-    { name: 'TypeScript 5', desc: '类型安全保障', type: 'Lang', tagType: 'info' as const },
-    { name: 'Pinia 3', desc: '状态管理 + 持久化', type: 'State', tagType: 'warning' as const },
-    { name: 'Vue Router 4', desc: '文件系统路由', type: 'Router', tagType: '' as const },
-    { name: 'UnoCSS', desc: '原子化 CSS', type: 'Style', tagType: 'danger' as const },
-    { name: 'Monorepo', desc: 'pnpm + Turbo 工程体系', type: 'Arch', tagType: 'info' as const },
-  ];
-</script>

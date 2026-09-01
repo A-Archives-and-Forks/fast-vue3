@@ -1,50 +1,97 @@
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const stats = [
+  { label: '总用户', value: '12,480', border: '#165DFF' },
+  { label: '今日访问', value: '3,256', border: '#00B42A' },
+  { label: '活跃应用', value: '5', border: '#722ed1' },
+  { label: '系统正常率', value: '99.9%', border: '#FF7D00' },
+];
+
+const actions = [
+  { label: '仪表盘', emoji: '📊', path: '/dashboard' },
+  { label: '用户管理', emoji: '👥', path: '/user' },
+  { label: '组件展示', emoji: '🧩', path: '/components' },
+  { label: '个人中心', emoji: '👤', path: '/profile' },
+  { label: '系统设置', emoji: '⚙️', path: '/settings' },
+  { label: '关于项目', emoji: '📖', path: '/about' },
+];
+
+const techStack = [
+  { name: 'Vue 3.5', color: 'green' },
+  { name: 'Arco Design', color: 'arcoblue' },
+  { name: 'Vite 8', color: 'purple' },
+  { name: 'TypeScript 6', color: 'geekblue' },
+  { name: 'Pinia 3', color: 'orange' },
+  { name: 'Vue Router 4', color: 'cyan' },
+];
+</script>
+
 <template>
-  <div class="p-6">
-    <div class="mb-6">
+  <div style="padding: 24px">
+    <!-- Welcome Section -->
+    <div style="margin-bottom: 24px">
       <a-typography>
-        <a-typography-title :heading="2">欢迎使用 Fast Vue3 · Arco Design</a-typography-title>
+        <a-typography-title :heading="2"> 欢迎回来 </a-typography-title>
         <a-typography-paragraph>
           基于 Monorepo 工程平台，集成五大 UI 生态的 Vue3 管理后台模板
         </a-typography-paragraph>
       </a-typography>
+      <a-divider />
     </div>
 
-    <a-row :gutter="16" class="mb-6">
-      <a-col v-for="item in techStack" :key="item.name" :xs="24" :sm="12" :lg="8" class="mb-4">
-        <a-card hoverable class="h-full">
-          <div class="flex items-center gap-2 mb-2">
-            <a-tag :color="item.color" size="small">{{ item.type }}</a-tag>
-            <span class="font-semibold text-gray-800">{{ item.name }}</span>
+    <!-- Quick Stats -->
+    <a-row :gutter="16" style="margin-bottom: 24px">
+      <a-col v-for="item in stats" :key="item.label" :span="6">
+        <a-card
+          :bordered="false"
+          :style="{ borderLeft: `4px solid ${item.border}` }"
+        >
+          <div
+            style="font-size: 28px; font-weight: 700; line-height: 1.2"
+            :style="{ color: item.border }"
+          >
+            {{ item.value }}
           </div>
-          <p class="text-sm text-gray-500 m-0">{{ item.desc }}</p>
+          <div style="margin-top: 8px; font-size: 14px; color: #86909c">
+            {{ item.label }}
+          </div>
         </a-card>
       </a-col>
     </a-row>
 
-    <a-card title="快速导航" :bordered="false">
-      <a-space>
-        <a-button type="primary" @click="router.push('/dashboard')">
-          <template #icon><icon-dashboard /></template>
-          查看仪表盘
-        </a-button>
+    <!-- Quick Actions -->
+    <a-card title="快捷操作" :bordered="false" style="margin-bottom: 24px">
+      <a-row :gutter="[16, 16]">
+        <a-col v-for="action in actions" :key="action.label" :span="4">
+          <a-card
+            hoverable
+            style="text-align: center; cursor: pointer"
+            @click="router.push(action.path)"
+          >
+            <div style="margin-bottom: 8px; font-size: 32px">
+              {{ action.emoji }}
+            </div>
+            <div>{{ action.label }}</div>
+          </a-card>
+        </a-col>
+      </a-row>
+    </a-card>
+
+    <!-- Tech Stack -->
+    <a-card title="技术栈" :bordered="false">
+      <a-space wrap>
+        <a-tag
+          v-for="tech in techStack"
+          :key="tech.name"
+          :color="tech.color"
+          size="large"
+        >
+          {{ tech.name }}
+        </a-tag>
       </a-space>
     </a-card>
   </div>
 </template>
-
-<script setup lang="ts">
-  import { useRouter } from 'vue-router';
-
-  const router = useRouter();
-
-  const techStack = [
-    { name: 'Vue 3.5', desc: 'Composition API + script setup', type: 'Core', color: 'green' },
-    { name: 'Arco Design Vue 2', desc: '字节跳动企业级组件库', type: 'UI', color: 'arcoblue' },
-    { name: 'Vite 7', desc: '极速构建工具', type: 'Build', color: 'purple' },
-    { name: 'TypeScript 5', desc: '类型安全保障', type: 'Lang', color: 'blue' },
-    { name: 'Pinia 3', desc: '状态管理 + 持久化', type: 'State', color: 'orangered' },
-    { name: 'Vue Router 4', desc: '文件系统路由', type: 'Router', color: 'cyan' },
-    { name: 'UnoCSS', desc: '原子化 CSS', type: 'Style', color: 'red' },
-    { name: 'Monorepo', desc: 'pnpm + Turbo 工程体系', type: 'Arch', color: 'magenta' },
-  ];
-</script>

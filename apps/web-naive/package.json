@@ -11,13 +11,18 @@
   },
   "dependencies": {
     "@fast-vue3/access": "workspace:*",
+    "@fast-vue3/layout": "workspace:*",
     "@fast-vue3/locales": "workspace:*",
+    "@fast-vue3/preferences": "workspace:*",
     "@fast-vue3/request": "workspace:*",
     "@fast-vue3/shared": "workspace:*",
     "@fast-vue3/stores": "workspace:*",
+    "@fast-vue3/styles": "workspace:*",
     "@fast-vue3/utils": "workspace:*",
     "@vueuse/core": "catalog:",
+    "echarts": "catalog:",
     "naive-ui": "catalog:",
+    "nprogress": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
@@ -27,10 +32,10 @@
     "@fast-vue3/tsconfig": "workspace:*",
     "@fast-vue3/vite-config": "workspace:*",
     "@types/node": "catalog:",
-    "vite": "catalog:",
-    "unplugin-vue-components": "catalog:",
+    "@types/nprogress": "catalog:",
     "typescript": "catalog:",
-    "unocss": "catalog:",
+    "unplugin-vue-components": "catalog:",
+    "vite": "catalog:",
     "vue-tsc": "catalog:"
   }
 }

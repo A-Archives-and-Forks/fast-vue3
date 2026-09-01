@@ -17,5 +17,6 @@ export default defineConfig({
     'types/auto-imports.d.ts',
     'types/components.d.ts',
     'types/typed-router.d.ts',
+    'packages/styles/src/*.css.d.ts',
   ],
 });

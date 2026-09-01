@@ -1,5 +1,6 @@
+import { consola } from '@fast-vue3/node-utils';
+
 import { cac } from 'cac';
-import { consola } from 'consola';
 
 import { run } from './run';
 
@@ -7,13 +8,13 @@ try {
   const turboRun = cac('turbo-run');
 
   turboRun
-    .command('[script]', 'Run a turbo script interactively')
-    .usage('turbo-run [script]')
+    .command('[script]')
+    .usage(`Run turbo interactively.`)
     .action(async (command: string) => {
-      await run({ command });
+      run({ command });
     });
 
-  turboRun.usage('turbo-run [script]');
+  turboRun.usage('turbo-run');
   turboRun.help();
   turboRun.parse();
 } catch (error) {

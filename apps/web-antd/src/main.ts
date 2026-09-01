@@ -1,9 +1,15 @@
 import { createApp } from 'vue';
 
-import App from './App.vue';
-import { setupRouter } from './router';
-import { setupAntd } from './plugins/antd';
 import { setupStore } from '@fast-vue3/stores';
+import '@fast-vue3/styles/global';
+import '@fast-vue3/styles/reset';
+import '@fast-vue3/styles/themes';
+
+import App from './App.vue';
+import { setupAntd } from './plugins/antd';
+import { setupRouter } from './router';
+
+import 'ant-design-vue/dist/reset.css';
 
 async function bootstrap() {
   const app = createApp(App);

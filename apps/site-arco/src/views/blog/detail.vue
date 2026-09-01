@@ -1,0 +1,143 @@
+<script setup lang="ts">
+import type { BlogPost } from '@/mock/blog';
+
+import { computed, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
+import { blogPosts } from '@/mock/blog';
+import { IconLeft } from '@arco-design/web-vue/es/icon';
+
+const route = useRoute();
+const router = useRouter();
+
+const loading = ref(true);
+const post = ref<BlogPost | null>(null);
+
+const coverText = computed(() => (post.value?.category ?? '封面').slice(0, 2));
+
+onMounted(() => {
+  const id = Number(route.params.id);
+  post.value = blogPosts.find((p) => p.id === id) ?? null;
+  setTimeout(() => {
+    loading.value = false;
+  }, 200);
+});
+
+function goBack() {
+  router.push('/blog');
+}
+</script>
+
+<template>
+  <div>
+    <section class="site-hero detail-hero">
+      <a-button type="text" class="back-btn" @click="goBack">
+        <IconLeft />返回博客列表
+      </a-button>
+      <a-spin :loading="loading">
+        <template v-if="post">
+          <h1 class="site-hero-title">{{ post.title }}</h1>
+          <div class="hero-meta">
+            <span>{{ post.author }}</span>
+            <span class="dot">·</span>
+            <span>{{ post.date }}</span>
+            <a-tag color="arcoblue" class="hero-tag">{{ post.category }}</a-tag>
+          </div>
+        </template>
+        <h1 v-else class="site-hero-title">未找到该文章</h1>
+      </a-spin>
+    </section>
+
+    <section class="site-section detail-section">
+      <div class="site-container site-container--narrow">
+        <a-empty
+          v-if="!post && !loading"
+          description="未找到该文章"
+          style="padding: 64px 0"
+        />
+
+        <article v-if="post" v-reveal class="site-card detail-card">
+          <div class="detail-cover">{{ coverText }} 封面</div>
+          <p v-for="(p, i) in post.content" :key="i" class="detail-paragraph">
+            {{ p }}
+          </p>
+          <a-divider />
+          <div class="detail-tags">
+            <span class="detail-tags-label">标签：</span>
+            <a-tag v-for="t in post.tags" :key="t" color="arcoblue">
+              {{ t }}
+            </a-tag>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+</template>
+
+<style scoped>
+.detail-hero {
+  padding-block: 64px 48px;
+}
+
+.back-btn {
+  margin-bottom: 16px;
+  color: rgb(255 255 255 / 85%) !important;
+}
+
+.back-btn:hover {
+  color: #fff !important;
+}
+
+.hero-meta {
+  font-size: 0.95rem;
+  color: rgb(255 255 255 / 80%);
+}
+
+.hero-meta .dot {
+  margin: 0 8px;
+}
+
+.hero-tag {
+  margin-left: 10px;
+}
+
+.detail-section {
+  padding-block: 48px;
+}
+
+.detail-card {
+  padding: 40px;
+}
+
+.detail-cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  margin-bottom: 28px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--site-gradient);
+  border-radius: var(--site-radius-sm);
+}
+
+.detail-paragraph {
+  margin: 0 0 18px;
+  font-size: 1rem;
+  line-height: 1.9;
+  color: var(--site-text-2);
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.detail-tags-label {
+  font-size: 0.9rem;
+  color: var(--site-text-3);
+}
+</style>

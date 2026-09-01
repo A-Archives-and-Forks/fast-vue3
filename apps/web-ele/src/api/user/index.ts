@@ -1,4 +1,5 @@
 import type { RoleType } from '@fast-vue3/shared';
+
 import { http } from '../http';
 
 interface LoginParams {
@@ -14,10 +15,10 @@ export const userApi = {
   login: (params: LoginParams) =>
     http.post<LoginResult>({ url: '/user/login', data: params }),
 
-  logout: () => http.post<void>({ url: '/user/logout' }),
+  logout: () => http.post<undefined>({ url: '/user/logout' }),
 
   getProfile: () =>
-    http.get<{ userName: string; avatar: string; role: RoleType }>({
+    http.get<{ avatar: string; role: RoleType; userName: string }>({
       url: '/user/profile',
     }),
 };

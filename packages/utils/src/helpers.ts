@@ -16,7 +16,10 @@ export function getHttpStatusMessage(status: number): string {
 }
 
 /** 深度合并对象（浅合并优先级：source > target） */
-export function deepMerge<T extends Record<string, any>>(target: T, source: Partial<T>): T {
+export function deepMerge<T extends Record<string, any>>(
+  target: T,
+  source: Partial<T>,
+): T {
   const result = { ...target };
   for (const key of Object.keys(source) as (keyof T)[]) {
     const sourceVal = source[key];
@@ -36,8 +39,11 @@ export function deepMerge<T extends Record<string, any>>(target: T, source: Part
 }
 
 /** 节流 */
-export function throttle<T extends (...args: any[]) => any>(fn: T, delay = 300): T {
-  let timer: ReturnType<typeof setTimeout> | null = null;
+export function throttle<T extends (...args: any[]) => any>(
+  fn: T,
+  delay = 300,
+): T {
+  let timer: null | ReturnType<typeof setTimeout> = null;
   return function (this: any, ...args: Parameters<T>) {
     if (timer) return;
     timer = setTimeout(() => {
@@ -48,8 +54,11 @@ export function throttle<T extends (...args: any[]) => any>(fn: T, delay = 300):
 }
 
 /** 防抖 */
-export function debounce<T extends (...args: any[]) => any>(fn: T, delay = 300): T {
-  let timer: ReturnType<typeof setTimeout> | null = null;
+export function debounce<T extends (...args: any[]) => any>(
+  fn: T,
+  delay = 300,
+): T {
+  let timer: null | ReturnType<typeof setTimeout> = null;
   return function (this: any, ...args: Parameters<T>) {
     if (timer) clearTimeout(timer);
     timer = setTimeout(() => {

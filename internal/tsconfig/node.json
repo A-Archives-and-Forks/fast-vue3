@@ -3,7 +3,10 @@
   "display": "Node Config",
   "extends": "./base.json",
   "compilerOptions": {
+    "composite": false,
     "lib": ["ESNext"],
-    "types": ["node"]
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "noImplicitAny": true
   }
 }

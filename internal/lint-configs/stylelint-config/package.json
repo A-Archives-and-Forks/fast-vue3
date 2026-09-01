@@ -2,17 +2,33 @@
   "name": "@fast-vue3/stylelint-config",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./index.mjs",
+  "module": "./index.mjs",
   "exports": {
     ".": {
+      "import": "./index.mjs",
       "default": "./index.mjs"
     }
   },
-  "files": ["index.mjs"],
   "dependencies": {
+    "@stylistic/stylelint-plugin": "catalog:",
+    "postcss-html": "catalog:",
+    "postcss-scss": "catalog:",
+    "stylelint-config-recess-order": "catalog:",
+    "stylelint-config-recommended": "catalog:",
+    "stylelint-config-recommended-scss": "catalog:",
+    "stylelint-config-recommended-vue": "catalog:",
     "stylelint-config-standard": "catalog:",
     "stylelint-order": "catalog:",
-    "postcss-html": "catalog:",
-    "postcss-less": "catalog:"
+    "stylelint-scss": "catalog:"
+  },
+  "devDependencies": {
+    "postcss": "catalog:",
+    "stylelint": "catalog:"
   }
 }

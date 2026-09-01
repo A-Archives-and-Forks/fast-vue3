@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "files": [
+    "index.mjs"
+  ],
   "exports": {
-    ".": {
-      "default": "./index.mjs"
-    }
-  },
-  "files": ["index.mjs"]
+    ".": "./index.mjs"
+  }
 }

@@ -1,0 +1,26 @@
+{
+  "name": "@fast-vue3/styles",
+  "version": "1.0.0",
+  "private": true,
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    "./reset": {
+      "types": "./src/reset.css.d.ts",
+      "default": "./src/reset.css"
+    },
+    "./global": {
+      "types": "./src/global.css.d.ts",
+      "default": "./src/global.css"
+    },
+    "./themes": {
+      "types": "./src/themes.css.d.ts",
+      "default": "./src/themes.css"
+    },
+    "./site": {
+      "types": "./src/site.css.d.ts",
+      "default": "./src/site.css"
+    }
+  }
+}

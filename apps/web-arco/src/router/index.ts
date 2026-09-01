@@ -1,25 +1,60 @@
 import type { App } from 'vue';
+
 import { createRouter, createWebHashHistory } from 'vue-router';
+// @ts-expect-error – routes is provided as a virtual module by unplugin-vue-router at build time
 import { routes } from 'vue-router/auto-routes';
-import { setupAccessGuard } from '@fast-vue3/access';
+
+import NProgress from 'nprogress';
+
 import Layout from '../layout/index.vue';
 
+import 'nprogress/nprogress.css';
+
 const AUTH_ROUTES = new Set(['/login']);
+const WHITE_LIST = ['/login', '/error/403', '/error/404', '/error/500'];
 
 export function setupRouter(app: App) {
-  const authRoutes = routes.filter((r) => AUTH_ROUTES.has(r.path as string));
-  const appRoutes = routes.filter((r) => !AUTH_ROUTES.has(r.path as string));
+  const authRoutes = (routes as any[]).filter((r) =>
+    AUTH_ROUTES.has(r.path as string),
+  );
+  const appRoutes = (routes as any[]).filter(
+    (r) => !AUTH_ROUTES.has(r.path as string),
+  );
 
   const router = createRouter({
     history: createWebHashHistory(import.meta.env.VITE_BASE_URL),
     routes: [
-      { path: '/', component: Layout, redirect: '/home', children: appRoutes },
+      {
+        path: '/',
+        component: Layout,
+        redirect: '/home',
+        children: appRoutes,
+      },
       ...authRoutes,
+      { path: '/:pathMatch(.*)*', redirect: '/error/404' },
     ],
     scrollBehavior: () => ({ top: 0 }),
   });
 
-  setupAccessGuard(router, { whiteList: ['/login'], loginRoute: '/login' });
+  router.beforeEach((to, _from, next) => {
+    NProgress.start();
+    const token = localStorage.getItem(`fast-vue3-user`) ?? '{}';
+    let isLoggedIn = false;
+    try {
+      isLoggedIn = !!JSON.parse(token)?.token;
+    } catch {}
+
+    if (WHITE_LIST.some((p) => to.path.startsWith(p))) {
+      if (isLoggedIn && to.path === '/login') return next({ path: '/' });
+      return next();
+    }
+    if (!isLoggedIn)
+      return next({ path: '/login', query: { redirect: to.fullPath } });
+    next();
+  });
+
+  router.afterEach(() => NProgress.done());
+
   app.use(router);
   return router;
 }

@@ -1,0 +1,13 @@
+# CSS declaration files
+packages/styles/src/*.css.d.ts
+dist
+dev-dist
+.local
+node_modules
+coverage
+*.min.js
+public
+stats.html
+types/auto-imports.d.ts
+types/components.d.ts
+types/typed-router.d.ts

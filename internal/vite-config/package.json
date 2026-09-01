@@ -2,34 +2,55 @@
   "name": "@fast-vue3/vite-config",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
+  "scripts": {
+    "stub": "pnpm exec tsdown",
+    "build": "tsdown"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./src/index.ts",
-      "import": "./dist/index.js"
+      "default": "./dist/index.mjs"
     }
   },
-  "scripts": {
-    "build": "tsdown",
-    "dev": "tsdown --watch"
-  },
   "dependencies": {
+    "@jspm/generator": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "archiver": "catalog:",
+    "cheerio": "catalog:",
+    "get-port": "catalog:",
+    "html-minifier-terser": "catalog:",
+    "nitropack": "catalog:",
+    "resolve.exports": "catalog:",
+    "vite-plugin-pwa": "catalog:",
+    "vite-plugin-vue-devtools": "catalog:"
+  },
+  "devDependencies": {
+    "@fast-vue3/node-utils": "workspace:*",
     "@fast-vue3/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "@unocss/preset-attributify": "catalog:",
-    "@unocss/preset-icons": "catalog:",
-    "@unocss/preset-uno": "catalog:",
+    "@pnpm/workspace.read-manifest": "catalog:",
+    "@types/archiver": "catalog:",
+    "@types/html-minifier-terser": "catalog:",
     "@vitejs/plugin-vue": "catalog:",
     "@vitejs/plugin-vue-jsx": "catalog:",
+    "dayjs": "catalog:",
+    "dotenv": "catalog:",
     "rollup-plugin-visualizer": "catalog:",
+    "sass": "catalog:",
     "tsdown": "catalog:",
-    "unocss": "catalog:",
     "unplugin-auto-import": "catalog:",
     "unplugin-vue-components": "catalog:",
     "unplugin-vue-router": "catalog:",
     "vite": "catalog:",
     "vite-plugin-compression": "catalog:",
-    "vite-plugin-mock": "catalog:",
-    "vite-plugin-svg-icons": "catalog:"
+    "vite-plugin-dts": "catalog:",
+    "vite-plugin-html": "catalog:"
   }
 }

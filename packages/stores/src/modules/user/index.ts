@@ -1,8 +1,8 @@
-import { defineStore } from 'pinia';
+import type { UserState } from './types';
 
 import { clearToken, setToken } from '@fast-vue3/utils';
 
-import type { UserState } from './types';
+import { defineStore } from 'pinia';
 
 export const useUserStore = defineStore('fast-vue3-user', {
   state: (): UserState => ({

@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia';
-
 import type { AppState } from './types';
+
+import { defineStore } from 'pinia';
 
 export const useAppStore = defineStore('fast-vue3-app', {
   state: (): AppState => ({

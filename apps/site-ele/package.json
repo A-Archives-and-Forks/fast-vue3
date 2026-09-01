@@ -1,0 +1,27 @@
+{
+  "name": "@fast-vue3/site-ele",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --mode development",
+    "build": "vite build --mode production",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "catalog:",
+    "@fast-vue3/styles": "workspace:*",
+    "@vueuse/core": "catalog:",
+    "element-plus": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  },
+  "devDependencies": {
+    "@fast-vue3/vite-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "unplugin-vue-components": "catalog:",
+    "vite": "catalog:",
+    "vue-tsc": "catalog:"
+  }
+}

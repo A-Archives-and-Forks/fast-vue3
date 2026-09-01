@@ -1,5 +1,6 @@
-import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
 import { defineConfig } from '@fast-vue3/vite-config';
+
+import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
 
 export default defineConfig(async () => {
   return {
@@ -10,12 +11,11 @@ export default defineConfig(async () => {
     },
     vite: {
       server: {
-        port: 3001,
         proxy: {
           '/api': {
             changeOrigin: true,
-            target: 'http://localhost:5320/api',
-            rewrite: (path: string) => path.replace(/^\/api/, ''),
+            target: 'http://localhost:5320',
+            ws: true,
           },
         },
       },

@@ -1,6 +1,6 @@
 export interface AppState {
-  title: string;
-  theme: 'light' | 'dark';
-  locale: string;
   collapsed: boolean;
+  locale: string;
+  theme: 'dark' | 'light';
+  title: string;
 }

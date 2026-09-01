@@ -1,0 +1,20 @@
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+const router = useRouter();
+</script>
+<template>
+  <div class="flex-center h-screen flex-col">
+    <el-result
+      icon="error"
+      title="500"
+      sub-title="抱歉，服务器出现异常，请稍后重试。"
+    >
+      <template #extra>
+        <el-button type="primary" @click="router.push('/home')">
+          返回首页
+        </el-button>
+        <el-button @click="router.back()"> 返回上页 </el-button>
+      </template>
+    </el-result>
+  </div>
+</template>

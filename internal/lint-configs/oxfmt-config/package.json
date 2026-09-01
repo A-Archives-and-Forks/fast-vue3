@@ -4,25 +4,22 @@
   "private": true,
   "license": "MIT",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
+  "scripts": {
+    "stub": "pnpm exec tsdown"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.mjs"
     }
-  },
-  "scripts": {
-    "build": "tsdown",
-    "stub": "pnpm exec tsdown"
   },
   "dependencies": {
     "oxfmt": "catalog:"
-  },
-  "devDependencies": {
-    "@fast-vue3/tsconfig": "workspace:*",
-    "tsdown": "catalog:",
-    "typescript": "catalog:"
   }
 }

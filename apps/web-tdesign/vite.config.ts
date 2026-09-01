@@ -1,5 +1,6 @@
-import { TDesignResolver } from '@tdesign-vue-next/auto-import-resolver';
 import { defineConfig } from '@fast-vue3/vite-config';
+
+import { TDesignResolver } from '@tdesign-vue-next/auto-import-resolver';
 
 export default defineConfig(async () => {
   return {
@@ -7,7 +8,15 @@ export default defineConfig(async () => {
       uiResolvers: [TDesignResolver({ library: 'vue-next' })],
     },
     vite: {
-      server: { port: 3005 },
+      server: {
+        proxy: {
+          '/api': {
+            changeOrigin: true,
+            target: 'http://localhost:5320',
+            ws: true,
+          },
+        },
+      },
     },
   };
 });

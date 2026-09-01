@@ -1,0 +1,29 @@
+{
+  "name": "@fast-vue3/site-primevue",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --mode development",
+    "build": "vite build --mode production",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fast-vue3/styles": "workspace:*",
+    "@primevue/themes": "catalog:",
+    "@vueuse/core": "catalog:",
+    "primeicons": "catalog:",
+    "primevue": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  },
+  "devDependencies": {
+    "@fast-vue3/vite-config": "workspace:*",
+    "@primevue/auto-import-resolver": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "unplugin-vue-components": "catalog:",
+    "vite": "catalog:",
+    "vue-tsc": "catalog:"
+  }
+}

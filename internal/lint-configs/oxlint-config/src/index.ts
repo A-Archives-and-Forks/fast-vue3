@@ -1,43 +1,21 @@
 import type { OxlintConfig } from 'oxlint';
 
-import { defineConfig } from 'oxlint';
+import { defineConfig as defineOxlintConfig } from 'oxlint';
 
-const oxlintConfig: OxlintConfig = {
-  env: {
-    browser: true,
-    node: true,
-    es2022: true,
-  },
-  ignorePatterns: [
-    'dist',
-    'dev-dist',
-    'node_modules',
-    'coverage',
-    '*.min.js',
-    'public',
-  ],
-  rules: {
-    'no-unused-vars': 'warn',
-    'no-console': 'warn',
-    'no-debugger': 'error',
-    eqeqeq: 'error',
-    'no-var': 'error',
-    'prefer-const': 'error',
-  },
+import { mergeOxlintConfigs, oxlintConfig } from './configs';
+
+type Vh5OxlintConfig = Omit<OxlintConfig, 'extends'> & {
+  extends?: OxlintConfig[];
 };
 
-function defineFastVue3OxlintConfig(
-  config: Partial<OxlintConfig> = {},
-): OxlintConfig {
-  return defineConfig({
-    ...oxlintConfig,
-    ...config,
-    rules: {
-      ...oxlintConfig.rules,
-      ...config.rules,
-    },
-  } as OxlintConfig);
+function defineConfig(config: Vh5OxlintConfig = {}) {
+  const { extends: extendedConfigs = [], ...restConfig } = config;
+
+  return defineOxlintConfig(
+    mergeOxlintConfigs(oxlintConfig, ...extendedConfigs, restConfig),
+  );
 }
 
-export { defineFastVue3OxlintConfig as defineConfig, oxlintConfig };
-export type { OxlintConfig };
+export { defineConfig, oxlintConfig };
+export * from './configs';
+export type { OxlintConfig, Vh5OxlintConfig };

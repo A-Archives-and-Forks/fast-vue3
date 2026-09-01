@@ -4,28 +4,29 @@
   "private": true,
   "license": "MIT",
   "type": "module",
+  "scripts": {
+    "stub": "pnpm unbuild --stub"
+  },
+  "files": [
+    "dist"
+  ],
   "bin": {
     "turbo-run": "./bin/turbo-run.mjs"
   },
-  "main": "./dist/index.js",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
   "exports": {
     ".": {
-      "import": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "build": "tsdown",
-    "stub": "pnpm exec tsdown"
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
   },
   "dependencies": {
     "@clack/prompts": "catalog:",
-    "cac": "catalog:",
-    "consola": "catalog:",
-    "execa": "catalog:"
+    "@fast-vue3/node-utils": "workspace:*",
+    "cac": "catalog:"
   },
   "devDependencies": {
-    "@fast-vue3/tsconfig": "workspace:*",
-    "tsdown": "catalog:",
-    "typescript": "catalog:"
+    "unbuild": "catalog:"
   }
 }

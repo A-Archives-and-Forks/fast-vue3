@@ -2,19 +2,39 @@
   "name": "@fast-vue3/eslint-config",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
+  "scripts": {
+    "stub": "pnpm exec tsdown"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "default": "./index.mjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
     }
   },
-  "files": ["index.mjs"],
   "dependencies": {
-    "@vue/eslint-config-prettier": "catalog:",
-    "@vue/eslint-config-typescript": "catalog:",
+    "@eslint/js": "catalog:",
+    "@fast-vue3/oxlint-config": "workspace:*",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
     "eslint": "catalog:",
-    "eslint-plugin-simple-import-sort": "catalog:",
+    "eslint-plugin-jsonc": "catalog:",
+    "eslint-plugin-n": "catalog:",
+    "eslint-plugin-perfectionist": "catalog:",
+    "eslint-plugin-pnpm": "catalog:",
+    "eslint-plugin-unicorn": "catalog:",
+    "eslint-plugin-unused-imports": "catalog:",
     "eslint-plugin-vue": "catalog:",
-    "globals": "catalog:"
+    "eslint-plugin-yml": "catalog:",
+    "globals": "catalog:",
+    "vue-eslint-parser": "catalog:",
+    "yaml-eslint-parser": "catalog:"
   }
 }

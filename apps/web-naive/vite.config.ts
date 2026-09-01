@@ -1,5 +1,6 @@
-import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
 import { defineConfig } from '@fast-vue3/vite-config';
+
+import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
 
 export default defineConfig(async () => {
   return {
@@ -7,7 +8,15 @@ export default defineConfig(async () => {
       uiResolvers: [NaiveUiResolver()],
     },
     vite: {
-      server: { port: 3003 },
+      server: {
+        proxy: {
+          '/api': {
+            changeOrigin: true,
+            target: 'http://localhost:5320',
+            ws: true,
+          },
+        },
+      },
     },
   };
 });

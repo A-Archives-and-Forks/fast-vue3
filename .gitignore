@@ -1,35 +1,90 @@
+# Dependencies
 node_modules
-dist
-dist.zip
-.turbo
-.cache
-.DS_Store
-*.local
+.pnpm-store
 
-# env
+# Build output
+dist
+dist-ssr
+dist.zip
+dist.tar
+dist.war
+*-dist.zip
+*-dist.tar
+*-dist.war
+stats.html
+
+# Turborepo
+.turbo
+
+# Nitro / Server
+.nitro
+**/.nitro
+.output
+**/.output
+
+# Cache
+.cache
+.stylelintcache
+.eslintcache
+**/.stylelintcache
+**/.eslintcache
+**/.vitepress/cache
+
+# Test / Coverage
+coverage
+dev-dist
+
+# Local env files
 .env.local
 .env.*.local
+*.local
+apps/backend-mock/.env
 
-# Vite
+# TypeScript
 *.tsbuildinfo
+
+# Vite generated configs
+vite.config.mts.*
+vite.config.mjs.*
+vite.config.js.*
+vite.config.ts.*
+
+# Generated type files
+**/types/auto-imports.d.ts
+**/types/components.d.ts
+**/types/typed-router.d.ts
 
 # Editor
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
 .idea
+.history
+.cursor
+.VSCodeCounter
+
+# Local assistant/tool state
+.workbuddy
 
 # Logs
 logs
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Generated type files (all apps)
-**/types/auto-imports.d.ts
-**/types/components.d.ts
-**/types/typed-router.d.ts
+# Lock files (use pnpm)
+yarn.lock
+package-lock.json
+
+# Backend mock data
+**/backend-mock/data
+
+# Temp
+.temp

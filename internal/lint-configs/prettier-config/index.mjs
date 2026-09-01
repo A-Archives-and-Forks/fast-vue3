@@ -1,14 +1,9 @@
-/** @param {import('prettier').Config} [overrides] */
-export function defineConfig(overrides = {}) {
-  return {
-    printWidth: 100,
-    semi: true,
-    singleQuote: true,
-    trailingComma: 'all',
-    proseWrap: 'never',
-    htmlWhitespaceSensitivity: 'strict',
-    endOfLine: 'lf',
-    vueIndentScriptAndStyle: true,
-    ...overrides,
-  };
-}
+/** @type {import("prettier").Config} */
+export default {
+  endOfLine: 'auto',
+  printWidth: 80,
+  semi: true,
+  singleQuote: true,
+  tabWidth: 2,
+  trailingComma: 'all',
+};

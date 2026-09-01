@@ -1,13 +1,22 @@
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import { defineConfig } from '@fast-vue3/vite-config';
+
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 
 export default defineConfig(async () => {
   return {
     application: {
-      uiResolvers: [ElementPlusResolver({ importStyle: false })],
+      uiResolvers: [ElementPlusResolver()],
     },
     vite: {
-      server: { port: 3002 },
+      server: {
+        proxy: {
+          '/api': {
+            changeOrigin: true,
+            target: 'http://localhost:5320',
+            ws: true,
+          },
+        },
+      },
     },
   };
 });

@@ -1,6 +1,6 @@
 import { TOKEN_KEY, TOKEN_PREFIX } from '@fast-vue3/shared';
 
-export function getToken(): string | null {
+export function getToken(): null | string {
   return localStorage.getItem(TOKEN_KEY);
 }
 
@@ -16,7 +16,7 @@ export function isLoggedIn(): boolean {
   return !!getToken();
 }
 
-export function getAuthHeader(): string | null {
+export function getAuthHeader(): null | string {
   const token = getToken();
   return token ? `${TOKEN_PREFIX}${token}` : null;
 }

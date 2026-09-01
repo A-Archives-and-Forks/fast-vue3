@@ -1,0 +1,14 @@
+{
+  "name": "@fast-vue3/backend-mock",
+  "version": "1.0.0",
+  "description": "Mock server for fast-vue3 development",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "nitro dev",
+    "build": "nitro build"
+  },
+  "dependencies": {
+    "nitropack": "catalog:"
+  }
+}

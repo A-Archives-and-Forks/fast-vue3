@@ -2,7 +2,7 @@
 
 export type Recordable<T = any> = Record<string, T>;
 
-export type Nullable<T> = T | null;
+export type Nullable<T> = null | T;
 
 export type Optional<T> = T | undefined;
 
@@ -17,9 +17,9 @@ export type Writable<T> = {
 /** API 响应通用结构 */
 export interface IResponse<T = any> {
   code: number | string;
-  result: T;
   message: string;
-  status: string | number;
+  result: T;
+  status: number | string;
 }
 
 /** 分页响应结构 */
@@ -37,11 +37,11 @@ export interface IPageParams {
 export type RoleType = '' | '*' | 'admin' | 'user';
 
 export interface ViteEnv {
-  VITE_BASE_URL: string;
-  VITE_PORT: number;
   VITE_APP_API_BASEURL: string;
-  VITE_USE_MOCK: boolean;
-  VITE_USE_COMPRESS: boolean;
-  VITE_OPEN_PROXY: boolean;
   VITE_APP_NAMESPACE: string;
+  VITE_BASE_URL: string;
+  VITE_OPEN_PROXY: boolean;
+  VITE_PORT: number;
+  VITE_USE_COMPRESS: boolean;
+  VITE_USE_MOCK: boolean;
 }
