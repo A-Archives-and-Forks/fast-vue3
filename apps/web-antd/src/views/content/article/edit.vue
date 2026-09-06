@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { ArticleItem } from '@/api';
 import type { FormInstance } from 'ant-design-vue';
 
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { articles, categories } from '@/mock/content';
+import { api } from '@/api';
 import { ArrowLeftOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 
@@ -19,18 +20,18 @@ const formRef = ref<FormInstance>();
 
 interface ArticleForm {
   title: string;
-  category: string;
+  categoryId: number | undefined;
   author: string;
   summary: string;
   cover: string;
   content: string;
-  status: string;
+  status: ArticleItem['status'];
   tags: string[];
 }
 
 const form = reactive<ArticleForm>({
   title: '',
-  category: '',
+  categoryId: undefined,
   author: '',
   summary: '',
   cover: '',
@@ -39,7 +40,7 @@ const form = reactive<ArticleForm>({
   tags: [],
 });
 
-const categoryOptions = categories.map((c) => c.name);
+const categories = ref<{ id: number; name: string }[]>([]);
 const tagOptions = [
   'Vue',
   'TypeScript',
@@ -51,18 +52,31 @@ const tagOptions = [
   '团队',
 ];
 
-function loadForEdit() {
+async function loadCategories() {
+  try {
+    const list = await api.content.categoryList();
+    categories.value = list.map((c) => ({ id: c.id, name: c.name }));
+  } catch {
+    categories.value = [];
+  }
+}
+
+async function loadForEdit() {
+  await loadCategories();
   if (!isEdit.value) return;
-  const found = articles.find((a) => a.id === editId.value);
-  if (!found) return;
-  form.title = found.title;
-  form.category = found.category;
-  form.author = found.author;
-  form.summary = found.summary;
-  form.cover = found.cover;
-  form.content = found.content.join('\n\n');
-  form.status = found.status;
-  form.tags = [...found.tags];
+  try {
+    const found = await api.content.articleDetail(editId.value);
+    form.title = found.title;
+    form.categoryId = found.categoryId;
+    form.author = found.author;
+    form.summary = found.summary;
+    form.cover = found.cover;
+    form.content = found.content.join('\n\n');
+    form.status = found.status;
+    form.tags = [...found.tags];
+  } catch {
+    message.error('文章加载失败');
+  }
 }
 
 async function handleSubmit() {
@@ -73,11 +87,30 @@ async function handleSubmit() {
     return;
   }
   submitting.value = true;
-  setTimeout(() => {
-    submitting.value = false;
-    message.success(isEdit.value ? '文章已更新' : '文章已创建');
+  try {
+    const payload = {
+      title: form.title,
+      categoryId: form.categoryId,
+      author: form.author,
+      summary: form.summary,
+      cover: form.cover,
+      content: form.content.split('\n\n'),
+      status: form.status,
+      tags: form.tags,
+    };
+    if (isEdit.value) {
+      await api.content.articleUpdate(editId.value, payload);
+      message.success('文章已更新');
+    } else {
+      await api.content.articleCreate(payload);
+      message.success('文章已创建');
+    }
     router.push('/content/article');
-  }, 600);
+  } catch {
+    message.error('保存失败');
+  } finally {
+    submitting.value = false;
+  }
 }
 
 function goBack() {
@@ -116,16 +149,16 @@ onMounted(loadForEdit);
         </AFormItem>
         <AFormItem
           label="分类"
-          name="category"
+          name="categoryId"
           :rules="[{ required: true, message: '请选择分类' }]"
         >
           <ASelect
-            v-model:value="form.category"
+            v-model:value="form.categoryId"
             placeholder="请选择分类"
             style="width: 100%"
           >
-            <ASelectOption v-for="c in categoryOptions" :key="c" :value="c">
-              {{ c }}
+            <ASelectOption v-for="c in categories" :key="c.id" :value="c.id">
+              {{ c.name }}
             </ASelectOption>
           </ASelect>
         </AFormItem>

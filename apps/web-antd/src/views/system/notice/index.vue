@@ -1,21 +1,13 @@
 <script setup lang="ts">
+import type { NoticeItem } from '@/api';
+
 import { computed, onMounted, reactive, ref } from 'vue';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import { message } from 'ant-design-vue';
 
-interface NoticeRecord {
-  id: number;
-  title: string;
-  type: string;
-  status: string;
-  author: string;
-  createdAt: string;
-  content: string;
-}
-
 const loading = ref(false);
-const dataSource = ref<NoticeRecord[]>([]);
+const dataSource = ref<NoticeItem[]>([]);
 const total = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
@@ -24,13 +16,13 @@ const typeFilter = ref('');
 
 const modalVisible = ref(false);
 const detailVisible = ref(false);
-const editingRecord = ref<NoticeRecord | null>(null);
-const detailRecord = ref<NoticeRecord | null>(null);
+const editingRecord = ref<NoticeItem | null>(null);
+const detailRecord = ref<NoticeItem | null>(null);
 
 const form = reactive({
   title: '',
   type: '通知',
-  status: 'active',
+  status: 'active' as NoticeItem['status'],
   content: '',
 });
 
@@ -52,17 +44,14 @@ const typeColorMap: Record<string, string> = {
 async function fetchData() {
   loading.value = true;
   try {
-    const res = await http.get<{ items: NoticeRecord[]; total: number }>({
-      url: '/notice/list',
-      params: {
-        page: currentPage.value,
-        pageSize: pageSize.value,
-        keyword: keyword.value,
-        type: typeFilter.value,
-      },
+    const res = await api.system.noticeList({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      keyword: keyword.value || undefined,
+      type: typeFilter.value || undefined,
     });
-    dataSource.value = res?.items ?? [];
-    total.value = res?.total ?? 0;
+    dataSource.value = res.items;
+    total.value = res.total;
   } catch {
     message.error('加载通知列表失败');
   } finally {
@@ -88,7 +77,7 @@ function handlePageChange(page: number, size: number) {
   fetchData();
 }
 
-function openModal(record?: NoticeRecord) {
+function openModal(record?: NoticeItem) {
   editingRecord.value = record ?? null;
   if (record) {
     Object.assign(form, {
@@ -108,7 +97,7 @@ function openModal(record?: NoticeRecord) {
   modalVisible.value = true;
 }
 
-function openDetail(record: NoticeRecord) {
+function openDetail(record: NoticeItem) {
   detailRecord.value = record;
   detailVisible.value = true;
 }
@@ -122,7 +111,7 @@ function handleSave() {
   modalVisible.value = false;
 }
 
-function handleDelete(record: NoticeRecord) {
+function handleDelete(record: NoticeItem) {
   dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
   total.value -= 1;
   message.success('已删除');
@@ -208,20 +197,20 @@ onMounted(fetchData);
               <AButton
                 type="link"
                 size="small"
-                @click="openDetail(record as NoticeRecord)"
+                @click="openDetail(record as NoticeItem)"
               >
                 查看
               </AButton>
               <AButton
                 type="link"
                 size="small"
-                @click="openModal(record as NoticeRecord)"
+                @click="openModal(record as NoticeItem)"
               >
                 编辑
               </AButton>
               <APopconfirm
                 title="确定删除该通知？"
-                @confirm="handleDelete(record as NoticeRecord)"
+                @confirm="handleDelete(record as NoticeItem)"
               >
                 <AButton type="link" size="small" danger>删除</AButton>
               </APopconfirm>

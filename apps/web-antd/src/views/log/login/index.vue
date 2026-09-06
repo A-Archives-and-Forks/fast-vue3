@@ -1,22 +1,13 @@
 <script setup lang="ts">
+import type { LoginLogItem } from '@/api';
+
 import { computed, onMounted, ref } from 'vue';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import { message } from 'ant-design-vue';
 
-interface LoginLog {
-  id: number;
-  username: string;
-  ip: string;
-  browser: string;
-  os: string;
-  status: string;
-  message: string;
-  createdAt: string;
-}
-
 const loading = ref(false);
-const dataSource = ref<LoginLog[]>([]);
+const dataSource = ref<LoginLogItem[]>([]);
 const total = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
@@ -36,16 +27,13 @@ const columns = [
 async function fetchData() {
   loading.value = true;
   try {
-    const res = await http.get<{ items: LoginLog[]; total: number }>({
-      url: '/log/login',
-      params: {
-        page: currentPage.value,
-        pageSize: pageSize.value,
-        keyword: keyword.value,
-      },
+    const res = await api.log.login({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      keyword: keyword.value || undefined,
     });
-    dataSource.value = res?.items ?? [];
-    total.value = res?.total ?? 0;
+    dataSource.value = res.items;
+    total.value = res.total;
   } catch {
     message.error('加载登录日志失败');
   } finally {
@@ -107,8 +95,18 @@ onMounted(fetchData);
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'status'">
-              <ATag :color="record.status === 'success' ? 'green' : 'red'">
-                {{ record.status === 'success' ? '成功' : '失败' }}
+              <ATag
+                :color="
+                  (record as LoginLogItem).status === 'success'
+                    ? 'green'
+                    : 'red'
+                "
+              >
+                {{
+                  (record as LoginLogItem).status === 'success'
+                    ? '成功'
+                    : '失败'
+                }}
               </ATag>
             </template>
           </template>

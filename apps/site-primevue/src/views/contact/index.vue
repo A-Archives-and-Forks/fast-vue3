@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 
+import { api } from '@/api';
 import Button from 'primevue/button';
 import { useToast } from 'primevue/usetoast';
 
@@ -25,8 +26,12 @@ async function handleSubmit() {
     return;
   }
   submitting.value = true;
-  setTimeout(() => {
-    submitting.value = false;
+  try {
+    await api.portal.contact({
+      email: form.email,
+      name: form.name,
+      message: `[${form.subject}] ${form.message}`,
+    });
     toast.add({
       severity: 'success',
       summary: '成功',
@@ -37,7 +42,16 @@ async function handleSubmit() {
     form.email = '';
     form.subject = '';
     form.message = '';
-  }, 600);
+  } catch {
+    toast.add({
+      severity: 'error',
+      summary: '提交失败',
+      detail: '请稍后重试',
+      life: 3000,
+    });
+  } finally {
+    submitting.value = false;
+  }
 }
 </script>
 

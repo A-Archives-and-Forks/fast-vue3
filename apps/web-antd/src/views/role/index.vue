@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import type { RoleItem } from '@/api';
 
+import { onMounted, reactive, ref } from 'vue';
+
+import { api } from '@/api';
 import { message } from 'ant-design-vue';
 
 const searchText = ref('');
+const loading = ref(false);
 const modalVisible = ref(false);
-const editingRecord = ref<any>(null);
+const editingRecord = ref<null | RoleItem>(null);
 
 const form = reactive({ name: '', code: '', description: '', status: true });
 
@@ -14,60 +18,47 @@ const columns = [
   { title: '角色名称', dataIndex: 'name', key: 'name' },
   { title: '角色编码', dataIndex: 'code', key: 'code' },
   { title: '描述', dataIndex: 'description', key: 'description' },
-  { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
+  { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', width: 170 },
   { title: '操作', key: 'action', width: 160 },
 ];
 
-const dataSource = ref([
-  {
-    key: 1,
-    id: 1,
-    name: '超级管理员',
-    code: 'R_SUPER',
-    description: '拥有所有权限',
-    status: 'active',
-  },
-  {
-    key: 2,
-    id: 2,
-    name: '管理员',
-    code: 'R_ADMIN',
-    description: '拥有管理权限',
-    status: 'active',
-  },
-  {
-    key: 3,
-    id: 3,
-    name: '编辑者',
-    code: 'R_EDITOR',
-    description: '可编辑内容',
-    status: 'active',
-  },
-  {
-    key: 4,
-    id: 4,
-    name: '访客',
-    code: 'R_VIEWER',
-    description: '只读权限',
-    status: 'active',
-  },
-  {
-    key: 5,
-    id: 5,
-    name: '测试角色',
-    code: 'R_TEST',
-    description: '测试用途',
-    status: 'inactive',
-  },
-]);
+const dataSource = ref<RoleItem[]>([]);
+const pagination = reactive({ current: 1, pageSize: 5, total: 0 });
 
-function openModal(record?: any) {
+async function load(page = 1) {
+  loading.value = true;
+  try {
+    const res = await api.role.list({
+      page,
+      pageSize: pagination.pageSize,
+      keyword: searchText.value || undefined,
+    });
+    dataSource.value = res.items;
+    pagination.current = res.page;
+    pagination.total = res.total;
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(() => load());
+
+function onSearch() {
+  load(1);
+}
+
+function onTableChange(p: { current?: number; pageSize?: number }) {
+  pagination.pageSize = p.pageSize ?? pagination.pageSize;
+  load(p.current ?? 1);
+}
+
+function openModal(record?: RoleItem) {
   editingRecord.value = record ?? null;
   if (record) {
     form.name = record.name;
     form.code = record.code;
-    form.description = record.description;
-    form.status = record.status === 'active';
+    form.description = record.description ?? '';
+    form.status = true;
   } else {
     form.name = '';
     form.code = '';
@@ -77,33 +68,33 @@ function openModal(record?: any) {
   modalVisible.value = true;
 }
 
-function handleSave() {
-  if (editingRecord.value) {
-    Object.assign(editingRecord.value, {
-      name: form.name,
-      code: form.code,
-      description: form.description,
-      status: form.status ? 'active' : 'inactive',
-    });
-    message.success('角色已更新');
-  } else {
-    const id = Math.max(...dataSource.value.map((r) => r.id)) + 1;
-    dataSource.value.push({
-      key: id,
-      id,
-      name: form.name,
-      code: form.code,
-      description: form.description,
-      status: form.status ? 'active' : 'inactive',
-    });
-    message.success('角色已创建');
+async function handleSave() {
+  try {
+    if (editingRecord.value) {
+      await api.role.update(editingRecord.value.id, {
+        name: form.name,
+        description: form.description,
+      });
+      message.success('角色已更新');
+    } else {
+      await api.role.create({
+        name: form.name,
+        code: form.code,
+        description: form.description,
+      });
+      message.success('角色已创建');
+    }
+    modalVisible.value = false;
+    load(pagination.current);
+  } catch {
+    message.error('保存失败');
   }
-  modalVisible.value = false;
 }
 
-function handleDelete(key: number) {
-  dataSource.value = dataSource.value.filter((r) => r.key !== key);
+async function handleDelete(id: number) {
+  await api.role.delete(id);
   message.success('已删除');
+  load(pagination.current);
 }
 </script>
 
@@ -120,30 +111,36 @@ function handleDelete(key: number) {
           placeholder="搜索角色名称或编码…"
           style="width: 320px"
           allow-clear
+          @search="onSearch"
         />
       </div>
       <ATable
         :data-source="dataSource"
         :columns="columns"
-        :pagination="{ pageSize: 5 }"
+        :loading="loading"
+        :pagination="{
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
+        }"
         size="middle"
+        row-key="id"
+        @change="onTableChange"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'status'">
-            <ABadge
-              :status="record.status === 'active' ? 'success' : 'default'"
-            />
-            <span>{{ record.status === 'active' ? '启用' : '禁用' }}</span>
-          </template>
           <template v-if="column.key === 'action'">
-            <AButton type="link" size="small" @click="openModal(record)">
+            <AButton
+              type="link"
+              size="small"
+              @click="openModal(record as RoleItem)"
+            >
               编辑
             </AButton>
             <AButton
               type="link"
               size="small"
               danger
-              @click="handleDelete(record.key)"
+              @click="handleDelete((record as RoleItem).id)"
             >
               删除
             </AButton>
@@ -162,7 +159,7 @@ function handleDelete(key: number) {
           <AInput v-model:value="form.name" />
         </AFormItem>
         <AFormItem label="角色编码">
-          <AInput v-model:value="form.code" />
+          <AInput v-model:value="form.code" :disabled="!!editingRecord" />
         </AFormItem>
         <AFormItem label="描述">
           <AInput v-model:value="form.description" />

@@ -264,7 +264,7 @@ const faqs = [
           <p class="site-section-desc">你关心的，我们都想到了</p>
         </div>
         <div v-reveal class="faq-panel">
-          <a-collapse :bordered="false" expand-icon-position="end">
+          <a-collapse :bordered="false" expand-icon-position="right">
             <a-collapse-item v-for="item in faqs" :key="item.q" :title="item.q">
               <p class="faq-answer">{{ item.a }}</p>
             </a-collapse-item>

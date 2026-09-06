@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Category } from '@/mock/content';
+import type { CategoryItem } from '@/api';
 import type { FormInstance } from 'ant-design-vue';
 
 import { onMounted, reactive, ref } from 'vue';
 
-import { articles, categories } from '@/mock/content';
+import { api } from '@/api';
 import {
   DeleteOutlined,
   EditOutlined,
@@ -15,27 +15,26 @@ import { message } from 'ant-design-vue';
 const loading = ref(false);
 const keyword = ref('');
 
-const list = ref<Category[]>([]);
+const list = ref<CategoryItem[]>([]);
 
-function refresh() {
+async function refresh() {
   loading.value = true;
-  setTimeout(() => {
-    list.value = categories
-      .filter((c) => !keyword.value || c.name.includes(keyword.value))
-      .map((c) => ({ ...c }));
+  try {
+    const data = await api.content.categoryList();
+    list.value = data.filter(
+      (c) => !keyword.value || c.name.includes(keyword.value),
+    );
+  } catch {
+    message.error('加载分类列表失败');
+  } finally {
     loading.value = false;
-  }, 200);
-}
-
-function articleCount(name: string): number {
-  return articles.filter((a) => a.category === name).length;
+  }
 }
 
 const columns = [
   { title: '名称', dataIndex: 'name', width: 160 },
   { title: 'Slug', dataIndex: 'slug', width: 160 },
   { title: '描述', dataIndex: 'description' },
-  { title: '文章数', key: 'count', width: 100 },
   { title: '状态', dataIndex: 'status', width: 100 },
   { title: '操作', key: 'action', width: 160, fixed: 'right' as const },
 ];
@@ -49,7 +48,7 @@ const form = reactive({
   name: '',
   slug: '',
   description: '',
-  status: 'active' as 'active' | 'inactive',
+  status: 'active' as CategoryItem['status'],
 });
 
 function openCreate() {
@@ -62,7 +61,7 @@ function openCreate() {
   modalVisible.value = true;
 }
 
-function openEdit(record: Category) {
+function openEdit(record: CategoryItem) {
   editingId.value = record.id;
   modalTitle.value = '编辑分类';
   form.name = record.name;
@@ -79,34 +78,35 @@ async function handleModalOk() {
     message.warning('请完善必填项');
     return;
   }
-  if (editingId.value) {
-    const target = categories.find((c) => c.id === editingId.value);
-    if (target) {
-      target.name = form.name;
-      target.slug = form.slug;
-      target.description = form.description;
-      target.status = form.status;
-    }
-    message.success('分类已更新');
-  } else {
-    categories.push({
-      id: Math.max(0, ...categories.map((c) => c.id)) + 1,
+  try {
+    const payload = {
       name: form.name,
       slug: form.slug || form.name.toLowerCase(),
       description: form.description,
       status: form.status,
-    });
-    message.success('分类已新增');
+    };
+    if (editingId.value) {
+      await api.content.categoryUpdate(editingId.value, payload);
+      message.success('分类已更新');
+    } else {
+      await api.content.categoryCreate(payload);
+      message.success('分类已新增');
+    }
+    modalVisible.value = false;
+    refresh();
+  } catch {
+    message.error('保存失败');
   }
-  modalVisible.value = false;
-  refresh();
 }
 
-function handleDelete(record: Category) {
-  const idx = categories.findIndex((c) => c.id === record.id);
-  if (idx !== -1) categories.splice(idx, 1);
-  message.success('分类已删除');
-  refresh();
+async function handleDelete(record: CategoryItem) {
+  try {
+    await api.content.categoryDelete(record.id);
+    message.success('分类已删除');
+    refresh();
+  } catch {
+    message.error('删除失败');
+  }
 }
 
 const statusColorMap: Record<string, string> = {
@@ -158,25 +158,24 @@ onMounted(refresh);
           row-key="id"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'count'">
-              {{ articleCount((record as Category).name) }}
-            </template>
             <template v-if="column.dataIndex === 'status'">
-              <ATag :color="statusColorMap[(record as Category).status]">
-                {{ (record as Category).status === 'active' ? '启用' : '停用' }}
+              <ATag :color="statusColorMap[(record as CategoryItem).status]">
+                {{
+                  (record as CategoryItem).status === 'active' ? '启用' : '停用'
+                }}
               </ATag>
             </template>
             <template v-if="column.key === 'action'">
               <AButton
                 type="link"
                 size="small"
-                @click="openEdit(record as Category)"
+                @click="openEdit(record as CategoryItem)"
               >
                 <EditOutlined />编辑
               </AButton>
               <APopconfirm
                 title="确定删除该分类？"
-                @confirm="handleDelete(record as Category)"
+                @confirm="handleDelete(record as CategoryItem)"
               >
                 <AButton type="link" size="small" danger>
                   <DeleteOutlined />删除

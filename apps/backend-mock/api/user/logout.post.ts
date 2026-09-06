@@ -1,5 +1,0 @@
-import { useResponseSuccess } from '~/utils/response';
-
-export default defineEventHandler(() => {
-  return useResponseSuccess(null, '退出成功');
-});

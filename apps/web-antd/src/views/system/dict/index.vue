@@ -1,40 +1,27 @@
 <script setup lang="ts">
+import type { DictItem } from '@/api';
+
 import { computed, onMounted, reactive, ref } from 'vue';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import { message } from 'ant-design-vue';
 
-interface DictData {
-  label: string;
-  value: string;
-}
-
-interface DictRecord {
-  id: number;
-  name: string;
-  type: string;
-  status: string;
-  remark: string;
-  createdAt: string;
-  data: DictData[];
-}
-
 const loading = ref(false);
-const dataSource = ref<DictRecord[]>([]);
+const dataSource = ref<DictItem[]>([]);
 const total = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
 const keyword = ref('');
 
 const modalVisible = ref(false);
-const editingRecord = ref<DictRecord | null>(null);
+const editingRecord = ref<DictItem | null>(null);
 const dataModalVisible = ref(false);
-const dataRecord = ref<DictRecord | null>(null);
+const dataRecord = ref<DictItem | null>(null);
 
 const form = reactive({
   name: '',
   type: '',
-  status: 'active',
+  status: 'active' as DictItem['status'],
   remark: '',
 });
 
@@ -51,16 +38,13 @@ const columns = [
 async function fetchData() {
   loading.value = true;
   try {
-    const res = await http.get<{ items: DictRecord[]; total: number }>({
-      url: '/dict/list',
-      params: {
-        page: currentPage.value,
-        pageSize: pageSize.value,
-        keyword: keyword.value,
-      },
+    const res = await api.system.dictList({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      keyword: keyword.value || undefined,
     });
-    dataSource.value = res?.items ?? [];
-    total.value = res?.total ?? 0;
+    dataSource.value = res.items;
+    total.value = res.total;
   } catch {
     message.error('加载字典列表失败');
   } finally {
@@ -85,7 +69,7 @@ function handlePageChange(page: number, size: number) {
   fetchData();
 }
 
-function openModal(record?: DictRecord) {
+function openModal(record?: DictItem) {
   editingRecord.value = record ?? null;
   if (record) {
     Object.assign(form, {
@@ -100,7 +84,7 @@ function openModal(record?: DictRecord) {
   modalVisible.value = true;
 }
 
-function openDataModal(record: DictRecord) {
+function openDataModal(record: DictItem) {
   dataRecord.value = record;
   dataModalVisible.value = true;
 }
@@ -114,7 +98,7 @@ function handleSave() {
   modalVisible.value = false;
 }
 
-function handleDelete(record: DictRecord) {
+function handleDelete(record: DictItem) {
   dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
   total.value -= 1;
   message.success('已删除');
@@ -187,20 +171,20 @@ onMounted(fetchData);
               <AButton
                 type="link"
                 size="small"
-                @click="openDataModal(record as DictRecord)"
+                @click="openDataModal(record as DictItem)"
               >
                 数据
               </AButton>
               <AButton
                 type="link"
                 size="small"
-                @click="openModal(record as DictRecord)"
+                @click="openModal(record as DictItem)"
               >
                 编辑
               </AButton>
               <APopconfirm
                 title="确定删除该字典？"
-                @confirm="handleDelete(record as DictRecord)"
+                @confirm="handleDelete(record as DictItem)"
               >
                 <AButton type="link" size="small" danger>删除</AButton>
               </APopconfirm>

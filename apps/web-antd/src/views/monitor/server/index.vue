@@ -1,16 +1,10 @@
 <script setup lang="ts">
+import type { ServerInfo } from '@/api';
+
 import { onMounted, ref } from 'vue';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import { message } from 'ant-design-vue';
-
-interface ServerInfo {
-  cpu: { cores: number; model: string; usage: number };
-  memory: { total: string; usage: number; used: string };
-  disk: { total: string; usage: number; used: string };
-  runtime: { node: string; os: string; port: number; uptime: string };
-  trend: { cpu: number; memory: number; time: string }[];
-}
 
 const loading = ref(false);
 const info = ref<null | ServerInfo>(null);
@@ -18,7 +12,7 @@ const info = ref<null | ServerInfo>(null);
 async function fetchData() {
   loading.value = true;
   try {
-    info.value = await http.get<ServerInfo>({ url: '/monitor/server' });
+    info.value = await api.monitor.server();
   } catch {
     message.error('加载服务器信息失败');
   } finally {
@@ -135,13 +129,8 @@ onMounted(fetchData);
                 <div class="trend-bars">
                   <div
                     class="trend-bar trend-bar--cpu"
-                    :style="{ height: `${point.cpu}%` }"
-                    :title="`CPU ${point.cpu}%`"
-                  ></div>
-                  <div
-                    class="trend-bar trend-bar--mem"
-                    :style="{ height: `${point.memory}%` }"
-                    :title="`内存 ${point.memory}%`"
+                    :style="{ height: `${point.usage}%` }"
+                    :title="`使用率 ${point.usage}%`"
                   ></div>
                 </div>
                 <div class="trend-time">{{ point.time }}</div>

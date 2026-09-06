@@ -3,6 +3,7 @@ import type { FormInstance } from 'ant-design-vue';
 
 import { reactive, ref } from 'vue';
 
+import { api } from '@/api';
 import {
   EnvironmentOutlined,
   GithubOutlined,
@@ -33,11 +34,19 @@ async function handleSubmit() {
     return;
   }
   submitting.value = true;
-  setTimeout(() => {
-    submitting.value = false;
+  try {
+    await api.portal.contact({
+      email: form.email,
+      name: form.name,
+      message: `[${form.subject}] ${form.message}`,
+    });
     message.success('提交成功，我们会尽快与你联系');
     formRef.value?.resetFields();
-  }, 600);
+  } catch {
+    message.error('提交失败，请稍后重试');
+  } finally {
+    submitting.value = false;
+  }
 }
 </script>
 

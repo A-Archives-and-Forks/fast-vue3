@@ -9,6 +9,7 @@ interface UserRecord {
   id: number;
   username: string;
   realName: string;
+  nickname?: string;
   email: string;
   phone: string;
   roles: string[];
@@ -55,7 +56,7 @@ const roleOptions = [
 
 const statusOptions = [
   { label: '启用', value: 'active' },
-  { label: '禁用', value: 'inactive' },
+  { label: '禁用', value: 'disabled' },
 ];
 
 const departments = ['技术部', '产品部', '运营部', '设计部', '市场部'];
@@ -64,7 +65,7 @@ async function fetchData() {
   loading.value = true;
   try {
     const res = await http.get<{ items: UserRecord[]; total: number }>({
-      url: '/user/list',
+      url: '/users',
       params: {
         page: currentPage.value + 1,
         pageSize: pageSize.value,
@@ -73,7 +74,11 @@ async function fetchData() {
         role: roleFilter.value,
       },
     });
-    dataSource.value = res?.items ?? [];
+    dataSource.value = (res?.items ?? []).map((user) => ({
+      ...user,
+      department: user.department || '',
+      realName: user.realName || user.nickname || user.username,
+    }));
     total.value = res?.total ?? 0;
   } catch {
     toast.add({
@@ -136,29 +141,37 @@ function openDetail(record: UserRecord) {
   detailVisible.value = true;
 }
 
-function handleSave() {
+async function handleSave() {
   if (!form.username || !form.realName) {
     toast.add({ severity: 'warn', summary: '提示', detail: '请填写必要信息' });
     return;
   }
-  if (editingRecord.value) {
-    const currentId = editingRecord.value.id;
-    const idx = dataSource.value.findIndex((r) => r.id === currentId);
-    if (idx !== -1) {
-      dataSource.value[idx] = { ...dataSource.value[idx], ...form };
+  try {
+    const data = {
+      email: form.email,
+      nickname: form.realName,
+      phone: form.phone,
+      status: form.status === 'active' ? 'active' : 'disabled',
+    };
+    if (editingRecord.value) {
+      await http.put({ data, url: `/users/${editingRecord.value.id}` });
+      toast.add({ severity: 'success', summary: '成功', detail: '用户已更新' });
+    } else {
+      await http.post({
+        data: { ...data, password: '123456', username: form.username },
+        url: '/users',
+      });
+      toast.add({
+        severity: 'success',
+        summary: '成功',
+        detail: '用户已创建，初始密码为 123456',
+      });
     }
-    toast.add({ severity: 'success', summary: '成功', detail: '用户已更新' });
-  } else {
-    const maxId = Math.max(...dataSource.value.map((r) => r.id), 0);
-    dataSource.value.unshift({
-      id: maxId + 1,
-      ...form,
-      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 19),
-    });
-    total.value += 1;
-    toast.add({ severity: 'success', summary: '成功', detail: '用户已创建' });
+    dialogVisible.value = false;
+    fetchData();
+  } catch {
+    toast.add({ severity: 'error', summary: '错误', detail: '用户保存失败' });
   }
-  dialogVisible.value = false;
 }
 
 function handleDelete(record: UserRecord) {
@@ -168,21 +181,31 @@ function handleDelete(record: UserRecord) {
     icon: 'pi pi-exclamation-triangle',
     rejectLabel: '取消',
     acceptLabel: '确定',
-    accept: () => {
-      dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
-      total.value -= 1;
-      toast.add({ severity: 'success', summary: '成功', detail: '已删除' });
+    accept: async () => {
+      try {
+        await http.del({ url: `/users/${record.id}` });
+        toast.add({ severity: 'success', summary: '成功', detail: '已删除' });
+        fetchData();
+      } catch {
+        toast.add({ severity: 'error', summary: '错误', detail: '删除失败' });
+      }
     },
   });
 }
 
-function handleToggleStatus(record: UserRecord) {
-  record.status = record.status === 'active' ? 'inactive' : 'active';
-  toast.add({
-    severity: 'success',
-    summary: '成功',
-    detail: `已${record.status === 'active' ? '启用' : '禁用'}`,
-  });
+async function handleToggleStatus(record: UserRecord) {
+  const status = record.status === 'active' ? 'disabled' : 'active';
+  try {
+    await http.put({ data: { status }, url: `/users/${record.id}` });
+    record.status = status;
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: `已${status === 'active' ? '启用' : '禁用'}`,
+    });
+  } catch {
+    toast.add({ severity: 'error', summary: '错误', detail: '状态更新失败' });
+  }
 }
 
 function roleLabel(value: string) {
@@ -409,10 +432,10 @@ onMounted(fetchData);
             <div style="display: flex; gap: 4px; align-items: center">
               <RadioButton
                 v-model="form.status"
-                input-id="status-inactive"
-                value="inactive"
+                input-id="status-disabled"
+                value="disabled"
               />
-              <label for="status-inactive">禁用</label>
+              <label for="status-disabled">禁用</label>
             </div>
           </div>
         </div>

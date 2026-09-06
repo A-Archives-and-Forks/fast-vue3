@@ -1,24 +1,14 @@
 <script setup lang="ts">
+import type { UserItem } from '@/api';
+
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import { message } from 'ant-design-vue';
 
-interface UserRecord {
-  id: number;
-  username: string;
-  realName: string;
-  email: string;
-  phone: string;
-  roles: string[];
-  status: string;
-  department: string;
-  createdAt: string;
-}
-
 const loading = ref(false);
-const dataSource = ref<UserRecord[]>([]);
+const dataSource = ref<UserItem[]>([]);
 const total = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
@@ -27,7 +17,7 @@ const statusFilter = ref('');
 const roleFilter = ref('');
 
 const modalVisible = ref(false);
-const editingRecord = ref<null | UserRecord>(null);
+const editingRecord = ref<null | UserItem>(null);
 
 const router = useRouter();
 
@@ -36,17 +26,18 @@ const form = reactive({
   realName: '',
   email: '',
   phone: '',
-  roles: [] as string[],
-  status: 'active',
   department: '',
+  roles: [] as string[],
+  status: 'active' as UserItem['status'],
 });
+
+const departments = ['技术部', '产品部', '运营部', '设计部', '市场部'];
 
 const columns = [
   { title: 'ID', dataIndex: 'id', width: 60 },
   { title: '用户名', dataIndex: 'username', width: 110 },
   { title: '姓名', dataIndex: 'realName', width: 100 },
   { title: '邮箱', dataIndex: 'email' },
-  { title: '部门', dataIndex: 'department', width: 100 },
   { title: '角色', dataIndex: 'roles', width: 120 },
   { title: '状态', dataIndex: 'status', width: 90 },
   { title: '创建时间', dataIndex: 'createdAt', width: 170 },
@@ -58,6 +49,7 @@ const roleColorMap: Record<string, string> = {
   editor: 'green',
   user: 'default',
   guest: 'gray',
+  '*': 'purple',
 };
 
 const roleOptions = [
@@ -67,23 +59,20 @@ const roleOptions = [
   { label: '访客', value: 'guest' },
 ];
 
-const departments = ['技术部', '产品部', '运营部', '设计部', '市场部'];
-
 async function fetchData() {
   loading.value = true;
   try {
-    const res = await http.get<{ items: UserRecord[]; total: number }>({
-      url: '/user/list',
-      params: {
-        page: currentPage.value,
-        pageSize: pageSize.value,
-        keyword: keyword.value,
-        status: statusFilter.value,
-        role: roleFilter.value,
-      },
+    const res = await api.user.list({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      keyword: keyword.value || undefined,
+      status: statusFilter.value || undefined,
     });
-    dataSource.value = res?.items ?? [];
-    total.value = res?.total ?? 0;
+    dataSource.value = res.items.map((user) => ({
+      ...user,
+      realName: user.realName ?? user.nickname ?? user.username,
+    }));
+    total.value = res.total;
   } catch {
     message.error('加载用户列表失败');
   } finally {
@@ -110,17 +99,17 @@ function handlePageChange(page: number, size: number) {
   fetchData();
 }
 
-function openModal(record?: UserRecord) {
+function openModal(record?: UserItem) {
   editingRecord.value = record ?? null;
   if (record) {
     Object.assign(form, {
       username: record.username,
-      realName: record.realName,
-      email: record.email,
-      phone: record.phone,
-      roles: [...record.roles],
+      realName: record.realName ?? '',
+      email: record.email ?? '',
+      phone: record.phone ?? '',
+      department: '',
+      roles: [...(record.roles ?? [])],
       status: record.status,
-      department: record.department,
     });
   } else {
     Object.assign(form, {
@@ -128,48 +117,67 @@ function openModal(record?: UserRecord) {
       realName: '',
       email: '',
       phone: '',
+      department: '',
       roles: [],
       status: 'active',
-      department: '',
     });
   }
   modalVisible.value = true;
 }
 
-function handleSave() {
-  if (!form.username || !form.realName) {
-    message.warning('请填写必要信息');
+async function handleSave() {
+  if (!form.username) {
+    message.warning('请填写用户名');
     return;
   }
-  if (editingRecord.value) {
-    const currentId = editingRecord.value.id;
-    const idx = dataSource.value.findIndex((r) => r.id === currentId);
-    if (idx !== -1) {
-      dataSource.value[idx] = { ...dataSource.value[idx], ...form };
+  try {
+    if (editingRecord.value) {
+      await api.user.update(editingRecord.value.id, {
+        realName: form.realName,
+        email: form.email,
+        phone: form.phone,
+        roleIds: [],
+        status: form.status,
+      });
+      message.success('用户已更新');
+    } else {
+      await api.user.create({
+        username: form.username,
+        realName: form.realName,
+        email: form.email,
+        phone: form.phone,
+        password: 'changeme',
+        status: form.status,
+      });
+      message.success('用户已创建');
     }
-    message.success('用户已更新');
-  } else {
-    const maxId = Math.max(...dataSource.value.map((r) => r.id), 0);
-    dataSource.value.unshift({
-      id: maxId + 1,
-      ...form,
-      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 19),
-    });
-    total.value += 1;
-    message.success('用户已创建');
+    modalVisible.value = false;
+    fetchData();
+  } catch {
+    message.error('保存失败');
   }
-  modalVisible.value = false;
 }
 
-function handleDelete(record: UserRecord) {
-  dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
-  total.value -= 1;
-  message.success('已删除');
+async function handleDelete(record: UserItem) {
+  try {
+    await api.user.delete(record.id);
+    message.success('已删除');
+    fetchData();
+  } catch {
+    message.error('删除失败');
+  }
 }
 
-function handleToggleStatus(record: UserRecord) {
-  record.status = record.status === 'active' ? 'inactive' : 'active';
-  message.success(`已${record.status === 'active' ? '启用' : '禁用'}`);
+async function handleToggleStatus(record: UserItem) {
+  try {
+    const next: UserItem['status'] =
+      record.status === 'active' ? 'disabled' : 'active';
+    await api.user.update(record.id, { status: next });
+    record.status = next;
+    message.success(`已${next === 'active' ? '启用' : '禁用'}`);
+  } catch {
+    message.error('状态切换失败');
+  }
 }
 
 const paginationConfig = computed(() => ({
@@ -210,7 +218,7 @@ onMounted(fetchData);
             style="width: 100%"
           >
             <ASelectOption value="active">启用</ASelectOption>
-            <ASelectOption value="inactive">禁用</ASelectOption>
+            <ASelectOption value="disabled">禁用</ASelectOption>
           </ASelect>
         </ACol>
         <ACol :span="4">
@@ -279,20 +287,20 @@ onMounted(fetchData);
               <AButton
                 type="link"
                 size="small"
-                @click="openModal(record as UserRecord)"
+                @click="openModal(record as UserItem)"
               >
                 编辑
               </AButton>
               <AButton
                 type="link"
                 size="small"
-                @click="handleToggleStatus(record as UserRecord)"
+                @click="handleToggleStatus(record as UserItem)"
               >
                 {{ record.status === 'active' ? '禁用' : '启用' }}
               </AButton>
               <APopconfirm
                 title="确定删除该用户？"
-                @confirm="handleDelete(record as UserRecord)"
+                @confirm="handleDelete(record as UserItem)"
               >
                 <AButton type="link" size="small" danger>删除</AButton>
               </APopconfirm>
@@ -357,7 +365,7 @@ onMounted(fetchData);
         <AFormItem label="状态">
           <ARadioGroup v-model:value="form.status">
             <ARadio value="active">启用</ARadio>
-            <ARadio value="inactive">禁用</ARadio>
+            <ARadio value="disabled">禁用</ARadio>
           </ARadioGroup>
         </AFormItem>
       </AForm>

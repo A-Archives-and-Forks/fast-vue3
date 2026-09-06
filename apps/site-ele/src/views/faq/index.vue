@@ -1,5 +1,9 @@
 <script setup lang="ts">
-const faqGroups = [
+import { onMounted, ref } from 'vue';
+
+import { api } from '@/api';
+
+const fallbackFaqGroups = [
   {
     category: '快速开始',
     items: [
@@ -48,6 +52,23 @@ const faqGroups = [
     ],
   },
 ];
+
+const faqGroups = ref(fallbackFaqGroups);
+
+onMounted(async () => {
+  try {
+    const data = await api.portal.faq();
+    const categories = [...new Set(data.map((item) => item.category))];
+    faqGroups.value = categories.map((category) => ({
+      category,
+      items: data
+        .filter((item) => item.category === category)
+        .map((item) => ({ q: item.question, a: item.answer })),
+    }));
+  } catch {
+    // 保留内置内容作为接口不可用时的降级展示。
+  }
+});
 </script>
 
 <template>

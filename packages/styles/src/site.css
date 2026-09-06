@@ -224,6 +224,231 @@
   transform: none;
 }
 
+/* Authenticated site interactions: payment checkout and blog comments. */
+.checkout-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(15 23 42 / 55%);
+  backdrop-filter: blur(5px);
+}
+
+.checkout-panel {
+  position: relative;
+  width: min(480px, 100%);
+  padding: 30px;
+  color: var(--site-text-1);
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgb(15 23 42 / 25%);
+}
+
+.checkout-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 26px;
+  color: var(--site-text-3);
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+.checkout-summary {
+  padding: 14px;
+  color: var(--site-text-2);
+  background: var(--site-bg-soft);
+  border-radius: 10px;
+}
+
+.payment-channels {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.payment-channels label {
+  padding: 12px;
+  cursor: pointer;
+  border: 1px solid var(--site-border);
+  border-radius: 10px;
+}
+
+.checkout-submit {
+  width: 100%;
+  padding: 12px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  background: var(--site-brand);
+  border: 0;
+  border-radius: 10px;
+}
+
+.checkout-submit:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.payment-error {
+  color: #ef4444;
+}
+
+.order-created {
+  text-align: center;
+}
+
+.order-success {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  font-size: 28px;
+  color: #fff;
+  background: #22c55e;
+  border-radius: 50%;
+}
+
+.order-hint {
+  font-size: 13px;
+  color: var(--site-text-3);
+}
+
+.comment-section {
+  padding: 30px;
+  margin-top: 24px;
+  color: var(--site-text-1);
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius-lg);
+  box-shadow: var(--site-shadow-sm);
+}
+
+.comment-heading,
+.comment-actions,
+.comment-meta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.comment-heading h2 {
+  margin: 3px 0 18px;
+}
+
+.comment-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--site-brand);
+  letter-spacing: 0.14em;
+}
+
+.comment-privacy,
+.comment-meta time {
+  font-size: 12px;
+  color: var(--site-text-4);
+}
+
+.comment-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 14px;
+  font: inherit;
+  color: var(--site-text-1);
+  resize: vertical;
+  outline: none;
+  background: var(--site-bg);
+  border: 1px solid var(--site-border);
+  border-radius: 10px;
+}
+
+.comment-input:focus {
+  border-color: var(--site-brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-brand) 12%, transparent);
+}
+
+.comment-actions {
+  margin-top: 12px;
+}
+
+.comment-submit {
+  padding: 10px 18px;
+  margin-left: auto;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  background: var(--site-brand);
+  border: 0;
+  border-radius: 9px;
+}
+
+.comment-submit:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.comment-error {
+  font-size: 13px;
+  color: #ef4444;
+}
+
+.comment-list {
+  margin-top: 26px;
+  border-top: 1px solid var(--site-border);
+}
+
+.comment-item {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 12px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--site-border);
+}
+
+.comment-avatar {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  font-weight: 800;
+  color: #fff;
+  background: var(--site-gradient);
+  border-radius: 50%;
+}
+
+.comment-meta {
+  justify-content: flex-start;
+}
+
+.comment-item p {
+  margin: 8px 0 0;
+  line-height: 1.7;
+  color: var(--site-text-2);
+}
+
+.comment-empty {
+  padding: 28px 0 6px;
+  color: var(--site-text-4);
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .comment-section {
+    padding: 20px;
+  }
+
+  .comment-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 /* 尊重系统"减少动态效果"偏好 */
 @media (prefers-reduced-motion: reduce) {
   .reveal {

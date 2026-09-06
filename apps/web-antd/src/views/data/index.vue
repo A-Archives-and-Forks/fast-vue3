@@ -1,70 +1,22 @@
 <script setup lang="ts">
+import type { DataOverview } from '@/api';
+
 import { onMounted, ref } from 'vue';
 
+import { api } from '@/api';
 import { DownloadOutlined } from '@ant-design/icons-vue';
 
 interface RecentItem {
-  date: string;
-  type: string;
   amount: string;
+  date: string;
   status: string;
+  type: string;
 }
 
 const loading = ref(true);
 
-const stats = [
-  { title: '总用户数', value: 1280, border: '#1677ff', suffix: '人' },
-  { title: '今日订单', value: 342, border: '#52c41a', suffix: '单' },
-  {
-    title: '月度营收',
-    value: 86.5,
-    border: '#722ed1',
-    prefix: '¥',
-    suffix: '万',
-  },
-  { title: '访问量', value: 9.7, border: '#fa8c16', suffix: '万' },
-];
-
-const recentData: RecentItem[] = [
-  {
-    date: '2026-08-14',
-    type: 'Pro 版订阅',
-    amount: '¥1,194',
-    status: '已完成',
-  },
-  { date: '2026-08-14', type: '开源版下载', amount: '¥0', status: '已完成' },
-  {
-    date: '2026-08-13',
-    type: '企业版咨询',
-    amount: '¥12,000',
-    status: '待支付',
-  },
-  {
-    date: '2026-08-13',
-    type: '组件市场消费',
-    amount: '¥299',
-    status: '已完成',
-  },
-  { date: '2026-08-12', type: 'Pro 版订阅', amount: '¥199', status: '已退款' },
-  {
-    date: '2026-08-12',
-    type: '私有部署服务',
-    amount: '¥38,000',
-    status: '已完成',
-  },
-  {
-    date: '2026-08-11',
-    type: '企业版续费',
-    amount: '¥24,000',
-    status: '已完成',
-  },
-  {
-    date: '2026-08-11',
-    type: '邮件营销转化',
-    amount: '¥598',
-    status: '已完成',
-  },
-];
+const stats = ref<DataOverview['stats']>([]);
+const recentData = ref<RecentItem[]>([]);
 
 const channels = [
   { name: '官网直访', percent: 38 },
@@ -78,6 +30,8 @@ const statusColorMap: Record<string, string> = {
   已完成: 'green',
   待支付: 'orange',
   已退款: 'red',
+  成功: 'green',
+  处理中: 'orange',
 };
 
 const recentColumns = [
@@ -87,10 +41,14 @@ const recentColumns = [
   { title: '状态', dataIndex: 'status', width: 110 },
 ];
 
-onMounted(() => {
-  setTimeout(() => {
+onMounted(async () => {
+  try {
+    const data = await api.analytics.dataOverview();
+    stats.value = data.stats;
+    recentData.value = data.recent;
+  } finally {
     loading.value = false;
-  }, 300);
+  }
 });
 </script>
 

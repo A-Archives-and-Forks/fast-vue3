@@ -8,6 +8,7 @@ interface UserRecord {
   id: number;
   username: string;
   realName: string;
+  nickname?: string;
   email: string;
   phone: string;
   roles: string[];
@@ -52,7 +53,7 @@ const roleOptions = [
 
 const statusOptions = [
   { label: '启用', value: 'active' },
-  { label: '禁用', value: 'inactive' },
+  { label: '禁用', value: 'disabled' },
 ];
 
 const departments = ['技术部', '产品部', '运营部', '设计部', '市场部'];
@@ -165,7 +166,7 @@ async function fetchData() {
   loading.value = true;
   try {
     const res = await http.get<{ items: UserRecord[]; total: number }>({
-      url: '/user/list',
+      url: '/users',
       params: {
         page: currentPage.value,
         pageSize: pageSize.value,
@@ -174,7 +175,11 @@ async function fetchData() {
         role: roleFilter.value,
       },
     });
-    dataSource.value = res?.items ?? [];
+    dataSource.value = (res?.items ?? []).map((user) => ({
+      ...user,
+      department: user.department || '',
+      realName: user.realName || user.nickname || user.username,
+    }));
     total.value = res?.total ?? 0;
   } catch {
     message.error('加载用户列表失败');
@@ -230,38 +235,53 @@ function openDetail(record: UserRecord) {
   showDetail.value = true;
 }
 
-function handleSave() {
+async function handleSave() {
   if (!form.username || !form.realName) {
     message.warning('请填写必要信息');
     return;
   }
-  if (editingRecord.value) {
-    const currentId = editingRecord.value.id;
-    const idx = dataSource.value.findIndex((r) => r.id === currentId);
-    if (idx !== -1)
-      dataSource.value[idx] = { ...dataSource.value[idx], ...form };
-    message.success('用户已更新');
-  } else {
-    const maxId = Math.max(...dataSource.value.map((r) => r.id), 0);
-    dataSource.value.unshift({
-      id: maxId + 1,
-      ...form,
-      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 19),
-    });
-    total.value += 1;
-    message.success('用户已创建');
+  try {
+    const data = {
+      email: form.email,
+      nickname: form.realName,
+      phone: form.phone,
+      status: form.status === 'active' ? 'active' : 'disabled',
+    };
+    if (editingRecord.value) {
+      await http.put({ data, url: `/users/${editingRecord.value.id}` });
+      message.success('用户已更新');
+    } else {
+      await http.post({
+        data: { ...data, password: '123456', username: form.username },
+        url: '/users',
+      });
+      message.success('用户已创建，初始密码为 123456');
+    }
+    showModal.value = false;
+    fetchData();
+  } catch {
+    message.error('用户保存失败');
   }
-  showModal.value = false;
 }
 
-function handleDelete(record: UserRecord) {
-  dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
-  total.value -= 1;
-  message.success('已删除');
+async function handleDelete(record: UserRecord) {
+  try {
+    await http.del({ url: `/users/${record.id}` });
+    message.success('已删除');
+    fetchData();
+  } catch {
+    message.error('删除失败');
+  }
 }
-function toggleStatus(record: UserRecord) {
-  record.status = record.status === 'active' ? 'inactive' : 'active';
-  message.success(`已${record.status === 'active' ? '启用' : '禁用'}`);
+async function toggleStatus(record: UserRecord) {
+  const status = record.status === 'active' ? 'disabled' : 'active';
+  try {
+    await http.put({ data: { status }, url: `/users/${record.id}` });
+    record.status = status;
+    message.success(`已${status === 'active' ? '启用' : '禁用'}`);
+  } catch {
+    message.error('状态更新失败');
+  }
 }
 
 onMounted(fetchData);
@@ -387,7 +407,7 @@ onMounted(fetchData);
           <span>状态</span
           ><NRadioGroup v-model:value="form.status" style="margin-top: 4px">
             <NRadio value="active">启用</NRadio
-            ><NRadio value="inactive">禁用</NRadio>
+            ><NRadio value="disabled">禁用</NRadio>
           </NRadioGroup>
         </div>
       </div>

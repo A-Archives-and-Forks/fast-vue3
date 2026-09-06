@@ -18,6 +18,11 @@ interface MenuRecord {
   permission?: string;
 }
 
+interface MenuApiRecord extends Omit<MenuRecord, 'status'> {
+  children?: MenuApiRecord[];
+  visible: boolean;
+}
+
 const loading = ref(false);
 const dataSource = ref<MenuRecord[]>([]);
 const dialogVisible = ref(false);
@@ -54,8 +59,13 @@ const columns = [
 async function fetchData() {
   loading.value = true;
   try {
-    const res = await http.get<MenuRecord[]>({ url: '/menu/list' });
-    dataSource.value = res ?? [];
+    const res = await http.get<MenuApiRecord[]>({ url: '/menus/tree' });
+    const flatten = (items: MenuApiRecord[]): MenuRecord[] =>
+      items.flatMap(({ children = [], visible, ...item }) => [
+        { ...item, status: visible ? 'active' : 'inactive' },
+        ...flatten(children),
+      ]);
+    dataSource.value = flatten(res ?? []);
   } catch {
     messageError('加载菜单数据失败');
   } finally {
@@ -102,28 +112,32 @@ function openDialog(record?: MenuRecord) {
   dialogVisible.value = true;
 }
 
-function handleSave() {
-  if (editingRecord.value) {
-    const currentId = editingRecord.value.id;
-    const idx = dataSource.value.findIndex((r) => r.id === currentId);
-    if (idx !== -1) {
-      const target = dataSource.value[idx];
-      dataSource.value[idx] = { ...target, ...form.value };
+async function handleSave() {
+  const { status, ...values } = form.value;
+  const data = { ...values, visible: status === 'active' };
+  try {
+    if (editingRecord.value) {
+      await http.put({ data, url: `/menus/${editingRecord.value.id}` });
+      messageSuccess('菜单已更新');
+    } else {
+      await http.post({ data, url: '/menus' });
+      messageSuccess('菜单已创建');
     }
-    messageSuccess('菜单已更新');
-  } else {
-    const maxId = Math.max(...dataSource.value.map((r) => r.id), 0);
-    dataSource.value.push({ id: maxId + 1, ...form.value });
-    messageSuccess('菜单已创建');
+    dialogVisible.value = false;
+    fetchData();
+  } catch {
+    messageError('菜单保存失败');
   }
-  dialogVisible.value = false;
 }
 
-function handleDelete(id: number) {
-  dataSource.value = dataSource.value.filter(
-    (r) => r.id !== id && r.parentId !== id,
-  );
-  messageSuccess('已删除');
+async function handleDelete(id: number) {
+  try {
+    await http.del({ url: `/menus/${id}` });
+    messageSuccess('已删除');
+    fetchData();
+  } catch {
+    messageError('删除失败');
+  }
 }
 
 onMounted(fetchData);

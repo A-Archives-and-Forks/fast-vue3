@@ -44,14 +44,17 @@ async function fetchData() {
   loading.value = true;
   try {
     const res = await http.get<{ items: RoleRecord[]; total: number }>({
-      url: '/role/list',
+      url: '/roles',
       params: {
         page: currentPage.value + 1,
         pageSize: pageSize.value,
         keyword: keyword.value,
       },
     });
-    dataSource.value = res?.items ?? [];
+    dataSource.value = (res?.items ?? []).map((item) => ({
+      ...item,
+      status: 'active',
+    }));
     total.value = res?.total ?? 0;
   } catch {
     toast.add({
@@ -94,30 +97,28 @@ function openDialog(record?: RoleRecord) {
   dialogVisible.value = true;
 }
 
-function handleSave() {
+async function handleSave() {
   if (!form.name || !form.code) {
     toast.add({ severity: 'warn', summary: '提示', detail: '请填写必要信息' });
     return;
   }
-  if (editingRecord.value) {
-    const currentId = editingRecord.value.id;
-    const idx = dataSource.value.findIndex((r) => r.id === currentId);
-    if (idx !== -1) {
-      dataSource.value[idx] = { ...dataSource.value[idx], ...form };
+  try {
+    const payload = { description: form.description, name: form.name };
+    if (editingRecord.value) {
+      await http.put({
+        data: payload,
+        url: `/roles/${editingRecord.value.id}`,
+      });
+      toast.add({ severity: 'success', summary: '成功', detail: '角色已更新' });
+    } else {
+      await http.post({ data: { ...payload, code: form.code }, url: '/roles' });
+      toast.add({ severity: 'success', summary: '成功', detail: '角色已创建' });
     }
-    toast.add({ severity: 'success', summary: '成功', detail: '角色已更新' });
-  } else {
-    const maxId = Math.max(...dataSource.value.map((r) => r.id), 0);
-    dataSource.value.unshift({
-      id: maxId + 1,
-      ...form,
-      permissions: [],
-      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 19),
-    });
-    total.value += 1;
-    toast.add({ severity: 'success', summary: '成功', detail: '角色已创建' });
+    dialogVisible.value = false;
+    fetchData();
+  } catch {
+    toast.add({ severity: 'error', summary: '错误', detail: '角色保存失败' });
   }
-  dialogVisible.value = false;
 }
 
 function handleDelete(record: RoleRecord) {
@@ -127,10 +128,14 @@ function handleDelete(record: RoleRecord) {
     icon: 'pi pi-exclamation-triangle',
     rejectLabel: '取消',
     acceptLabel: '确定',
-    accept: () => {
-      dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
-      total.value -= 1;
-      toast.add({ severity: 'success', summary: '成功', detail: '已删除' });
+    accept: async () => {
+      try {
+        await http.del({ url: `/roles/${record.id}` });
+        toast.add({ severity: 'success', summary: '成功', detail: '已删除' });
+        fetchData();
+      } catch {
+        toast.add({ severity: 'error', summary: '错误', detail: '删除失败' });
+      }
     },
   });
 }

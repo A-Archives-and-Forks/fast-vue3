@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue';
 
+import { api } from '@/api';
 import * as echarts from 'echarts';
 
 const lineChartRef = ref<HTMLElement>();
@@ -10,38 +11,78 @@ let lineChart: echarts.ECharts | null = null;
 let pieChart: echarts.ECharts | null = null;
 let barChart: echarts.ECharts | null = null;
 
-const statCards = [
-  { title: '总用户数', value: 12_480, suffix: '人', color: '#1890ff' },
-  { title: '今日访问', value: 3256, suffix: '次', color: '#52c41a' },
-  { title: '活跃应用', value: 5, suffix: '个', color: '#722ed1' },
-  { title: '系统正常率', value: 99.9, suffix: '%', color: '#fa8c16' },
-];
+const stats = ref<{ action: string; id: number; time: string; user: string }[]>(
+  [],
+);
+const trendDays = ref<string[]>([]);
+const trendVisits = ref<number[]>([]);
+const trendUsers = ref<number[]>([]);
+const roleDistribution = ref<{ name: string; value: number }[]>([]);
+const topPages = ref<{ path: string; title: string; visits: number }[]>([]);
+const statCards = ref<
+  { color: string; suffix: string; title: string; value: number }[]
+>([
+  { title: '今日访问', value: 0, suffix: '次', color: '#1890ff' },
+  { title: '总用户数', value: 0, suffix: '人', color: '#52c41a' },
+  { title: '活跃用户', value: 0, suffix: '人', color: '#722ed1' },
+  { title: '系统正常率', value: 0, suffix: '%', color: '#fa8c16' },
+]);
 
-const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const pv = [820, 932, 1201, 934, 1290, 1330, 1320];
-const uv = [620, 732, 801, 734, 1090, 1130, 1120];
+onMounted(async () => {
+  const data = await api.analytics.dashboardStats();
+  stats.value = data.recentActivities;
+  trendDays.value = data.weeklyTrend.days;
+  trendVisits.value = data.weeklyTrend.visits;
+  trendUsers.value = data.weeklyTrend.users;
+  roleDistribution.value = data.roleDistribution;
+  topPages.value = data.topPages;
+  statCards.value = [
+    {
+      title: '今日访问',
+      value: data.todayVisits,
+      suffix: '次',
+      color: '#1890ff',
+    },
+    {
+      title: '总用户数',
+      value: data.totalUsers,
+      suffix: '人',
+      color: '#52c41a',
+    },
+    {
+      title: '活跃用户',
+      value: data.activeUsers,
+      suffix: '人',
+      color: '#722ed1',
+    },
+    {
+      title: '系统正常率',
+      value: data.systemUptime,
+      suffix: '%',
+      color: '#fa8c16',
+    },
+  ];
 
-onMounted(() => {
   if (lineChartRef.value) {
     lineChart = echarts.init(lineChartRef.value);
     lineChart.setOption({
       tooltip: { trigger: 'axis' },
-      legend: { data: ['PV', 'UV'] },
-      xAxis: { type: 'category', data: days },
+      legend: { data: ['访问量', '用户数'] },
+      xAxis: { type: 'category', data: trendDays.value },
       yAxis: { type: 'value' },
       series: [
         {
-          name: 'PV',
+          name: '访问量',
           type: 'line',
           smooth: true,
-          data: pv,
+          data: trendVisits.value,
           areaStyle: { opacity: 0.1 },
         },
         {
-          name: 'UV',
+          name: '用户数',
           type: 'line',
           smooth: true,
-          data: uv,
+          data: trendUsers.value,
           areaStyle: { opacity: 0.1 },
         },
       ],
@@ -59,12 +100,7 @@ onMounted(() => {
           avoidLabelOverlap: false,
           label: { show: false },
           emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' } },
-          data: [
-            { value: 480, name: 'Admin' },
-            { value: 1048, name: 'Editor' },
-            { value: 2400, name: 'Viewer' },
-            { value: 735, name: 'Guest' },
-          ],
+          data: roleDistribution.value,
         },
       ],
     });
@@ -75,20 +111,13 @@ onMounted(() => {
       tooltip: { trigger: 'axis' },
       xAxis: {
         type: 'category',
-        data: [
-          '首页',
-          '仪表盘',
-          '用户管理',
-          '个人中心',
-          '组件展示',
-          '系统设置',
-        ],
+        data: topPages.value.map((p) => p.title),
       },
       yAxis: { type: 'value' },
       series: [
         {
           type: 'bar',
-          data: [3200, 4500, 2800, 1900, 3700, 1200],
+          data: topPages.value.map((p) => p.visits),
           itemStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: '#1890ff' },

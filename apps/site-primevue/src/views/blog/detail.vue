@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import type { BlogPost } from '@/mock/blog';
+import type { BlogComment, BlogPost } from '@/api';
 
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { blogPosts } from '@/mock/blog';
+import { isLoggedIn } from '@fast-vue3/utils';
+
+import { api } from '@/api';
 import Button from 'primevue/button';
 import Divider from 'primevue/divider';
 import ProgressSpinner from 'primevue/progressspinner';
@@ -16,14 +18,66 @@ const router = useRouter();
 const loading = ref(true);
 const post = ref<BlogPost | null>(null);
 
+const comments = ref<BlogComment[]>([]);
+const commentsLoading = ref(false);
+const commentContent = ref('');
+const commentSubmitting = ref(false);
+const commentError = ref('');
+
+async function loadComments() {
+  commentsLoading.value = true;
+  try {
+    comments.value = await api.portal.blogComments(Number(route.params.id));
+  } catch {
+    commentError.value = '评论加载失败，请稍后重试';
+  } finally {
+    commentsLoading.value = false;
+  }
+}
+
+async function submitComment() {
+  if (!isLoggedIn()) {
+    await router.push({
+      path: '/login',
+      query: { redirect: route.fullPath },
+    });
+    return;
+  }
+  const content = commentContent.value.trim();
+  if (!content) {
+    commentError.value = '请输入评论内容';
+    return;
+  }
+  commentSubmitting.value = true;
+  commentError.value = '';
+  try {
+    const comment = await api.portal.createBlogComment(
+      Number(route.params.id),
+      { content },
+    );
+    comments.value.unshift(comment);
+    commentContent.value = '';
+  } catch (error) {
+    commentError.value =
+      error instanceof Error ? error.message : '评论发布失败';
+  } finally {
+    commentSubmitting.value = false;
+  }
+}
+
+onMounted(loadComments);
+
 const coverText = computed(() => (post.value?.category ?? '封面').slice(0, 2));
 
-onMounted(() => {
+onMounted(async () => {
   const id = Number(route.params.id);
-  post.value = blogPosts.find((p) => p.id === id) ?? null;
-  setTimeout(() => {
+  try {
+    post.value = await api.portal.blog(id);
+  } catch {
+    post.value = null;
+  } finally {
     loading.value = false;
-  }, 200);
+  }
 });
 
 function goBack() {
@@ -73,6 +127,66 @@ function goBack() {
             <Tag v-for="t in post.tags" :key="t" :value="t" severity="info" />
           </div>
         </article>
+
+        <section class="comment-section">
+          <div class="comment-heading">
+            <div>
+              <span class="comment-eyebrow">DISCUSSION</span>
+              <h2>
+                评论 {{ comments.length > 0 ? `(${comments.length})` : '' }}
+              </h2>
+            </div>
+            <span class="comment-privacy">阅读公开 · 发布需登录</span>
+          </div>
+          <textarea
+            v-model="commentContent"
+            class="comment-input"
+            rows="4"
+            maxlength="1000"
+            placeholder="分享你的看法…"
+          ></textarea>
+          <div class="comment-actions">
+            <span v-if="commentError" class="comment-error">{{
+              commentError
+            }}</span>
+            <button
+              class="comment-submit"
+              type="button"
+              :disabled="commentSubmitting"
+              @click="submitComment"
+            >
+              {{
+                commentSubmitting
+                  ? '发布中…'
+                  : isLoggedIn()
+                    ? '发布评论'
+                    : '登录后评论'
+              }}
+            </button>
+          </div>
+          <div v-if="commentsLoading" class="comment-empty">正在加载评论…</div>
+          <div v-else-if="comments.length > 0" class="comment-list">
+            <article
+              v-for="comment in comments"
+              :key="comment.id"
+              class="comment-item"
+            >
+              <div class="comment-avatar">
+                {{ comment.username.slice(0, 1).toUpperCase() }}
+              </div>
+              <div>
+                <div class="comment-meta">
+                  <strong>{{ comment.username }}</strong>
+                  <time>{{ comment.createdAt }}</time>
+                </div>
+                <p>{{ comment.content }}</p>
+              </div>
+            </article>
+          </div>
+          <div v-else class="comment-empty">
+            还没有评论，登录后来发表第一条吧。
+          </div>
+        </section>
       </div>
     </section>
   </div>

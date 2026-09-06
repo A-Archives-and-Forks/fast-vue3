@@ -97,8 +97,8 @@ catalog:
   globals: ^17.6.0
   html-minifier-terser: ^7.2.0
   lefthook: ^1.11.0
-
   less: ^4.4.2
+  lint-staged: ^16.2.7
   naive-ui: ^2.44.1
   # Nitro (mock server)
   nitropack: ^2.13.4

@@ -3,6 +3,9 @@
 /** Token 存储键（各 app 通过 VITE_APP_NAMESPACE 区分） */
 export const TOKEN_KEY = 'fast-vue3:token';
 
+/** Refresh Token 存储键 */
+export const REFRESH_TOKEN_KEY = 'fast-vue3:refresh-token';
+
 /** Token 前缀 */
 export const TOKEN_PREFIX = 'Bearer ';
 

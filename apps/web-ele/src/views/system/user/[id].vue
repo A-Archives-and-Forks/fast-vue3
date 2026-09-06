@@ -51,8 +51,7 @@ async function fetchUser() {
   loading.value = true;
   try {
     const id = Number(route.params.id);
-    const res = await http.get<{ items: UserRecord[] }>({ url: '/user/list' });
-    const found = (res?.items ?? []).find((u) => u.id === id) ?? null;
+    const found = await http.get<UserRecord>({ url: `/users/${id}` });
     user.value = found;
     if (found) {
       activities.value = [
@@ -82,10 +81,16 @@ function goEdit() {
   ElMessage.info('请在用户列表中点击「编辑」');
 }
 
-function toggleStatus() {
+async function toggleStatus() {
   if (!user.value) return;
-  user.value.status = isActive.value ? 'inactive' : 'active';
-  ElMessage.success(`已${isActive.value ? '启用' : '禁用'}该用户`);
+  const status = isActive.value ? 'disabled' : 'active';
+  try {
+    await http.put({ data: { status }, url: `/users/${user.value.id}` });
+    user.value.status = status;
+    ElMessage.success(`已${status === 'active' ? '启用' : '禁用'}该用户`);
+  } catch {
+    ElMessage.error('状态更新失败');
+  }
 }
 
 onMounted(fetchUser);

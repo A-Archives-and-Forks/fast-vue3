@@ -8,6 +8,7 @@ interface UserRecord {
   id: number;
   username: string;
   realName: string;
+  nickname?: string;
   email: string;
   phone: string;
   roles: string[];
@@ -53,7 +54,7 @@ async function fetchData() {
   loading.value = true;
   try {
     const res = await http.get<{ items: UserRecord[]; total: number }>({
-      url: '/user/list',
+      url: '/users',
       params: {
         page: currentPage.value,
         pageSize: pageSize.value,
@@ -62,7 +63,11 @@ async function fetchData() {
         role: roleFilter.value,
       },
     });
-    dataSource.value = res?.items ?? [];
+    dataSource.value = (res?.items ?? []).map((user) => ({
+      ...user,
+      department: user.department || '',
+      realName: user.realName || user.nickname || user.username,
+    }));
     total.value = res?.total ?? 0;
   } catch {
     ElMessage.error('加载用户列表失败');
@@ -126,41 +131,51 @@ function openDetail(record: UserRecord) {
   detailVisible.value = true;
 }
 
-function handleSave() {
+async function handleSave() {
   if (!form.username || !form.realName) {
     ElMessage.warning('请填写必要信息');
     return;
   }
-  if (editingRecord.value) {
-    const currentId = editingRecord.value.id;
-    const idx = dataSource.value.findIndex((r) => r.id === currentId);
-    if (idx !== -1) {
-      dataSource.value[idx] = { ...dataSource.value[idx], ...form };
+  try {
+    const data = {
+      email: form.email,
+      nickname: form.realName,
+      phone: form.phone,
+      status: form.status === 'active' ? 'active' : 'disabled',
+    };
+    if (editingRecord.value) {
+      await http.put({ data, url: `/users/${editingRecord.value.id}` });
+      ElMessage.success('用户已更新');
+    } else {
+      await http.post({
+        data: { ...data, password: '123456', username: form.username },
+        url: '/users',
+      });
+      ElMessage.success('用户已创建，初始密码为 123456');
     }
-    ElMessage.success('用户已更新');
-  } else {
-    const maxId = Math.max(...dataSource.value.map((r) => r.id), 0);
-    dataSource.value.unshift({
-      id: maxId + 1,
-      ...form,
-      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 19),
-    });
-    total.value += 1;
-    ElMessage.success('用户已创建');
+    dialogVisible.value = false;
+    fetchData();
+  } catch {
+    ElMessage.error('用户保存失败');
   }
-  dialogVisible.value = false;
 }
 
 async function handleDelete(record: UserRecord) {
   await ElMessageBox.confirm('确定删除该用户？', '提示', { type: 'warning' });
-  dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
-  total.value -= 1;
+  await http.del({ url: `/users/${record.id}` });
   ElMessage.success('已删除');
+  fetchData();
 }
 
-function handleToggleStatus(record: UserRecord) {
-  record.status = record.status === 'active' ? 'inactive' : 'active';
-  ElMessage.success(`已${record.status === 'active' ? '启用' : '禁用'}`);
+async function handleToggleStatus(record: UserRecord) {
+  const status = record.status === 'active' ? 'disabled' : 'active';
+  try {
+    await http.put({ data: { status }, url: `/users/${record.id}` });
+    record.status = status;
+    ElMessage.success(`已${status === 'active' ? '启用' : '禁用'}`);
+  } catch {
+    ElMessage.error('状态更新失败');
+  }
 }
 
 onMounted(fetchData);
@@ -191,7 +206,7 @@ onMounted(fetchData);
             style="width: 100%"
           >
             <el-option label="启用" value="active" />
-            <el-option label="禁用" value="inactive" />
+            <el-option label="禁用" value="disabled" />
           </el-select>
         </el-col>
         <el-col :span="4">
@@ -363,7 +378,7 @@ onMounted(fetchData);
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
             <el-radio value="active">启用</el-radio>
-            <el-radio value="inactive">禁用</el-radio>
+            <el-radio value="disabled">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>

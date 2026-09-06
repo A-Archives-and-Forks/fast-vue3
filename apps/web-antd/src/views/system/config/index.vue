@@ -1,34 +1,26 @@
 <script setup lang="ts">
+import type { ConfigItem } from '@/api';
+
 import { computed, onMounted, reactive, ref } from 'vue';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import { message } from 'ant-design-vue';
 
-interface ConfigRecord {
-  id: number;
-  name: string;
-  key: string;
-  value: string;
-  type: string;
-  remark: string;
-  createdAt: string;
-}
-
 const loading = ref(false);
-const dataSource = ref<ConfigRecord[]>([]);
+const dataSource = ref<ConfigItem[]>([]);
 const total = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
 const keyword = ref('');
 
 const modalVisible = ref(false);
-const editingRecord = ref<ConfigRecord | null>(null);
+const editingRecord = ref<ConfigItem | null>(null);
 
 const form = reactive({
   name: '',
   key: '',
   value: '',
-  type: 'custom',
+  type: 'custom' as ConfigItem['type'],
   remark: '',
 });
 
@@ -45,16 +37,13 @@ const columns = [
 async function fetchData() {
   loading.value = true;
   try {
-    const res = await http.get<{ items: ConfigRecord[]; total: number }>({
-      url: '/config/list',
-      params: {
-        page: currentPage.value,
-        pageSize: pageSize.value,
-        keyword: keyword.value,
-      },
+    const res = await api.system.configList({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      keyword: keyword.value || undefined,
     });
-    dataSource.value = res?.items ?? [];
-    total.value = res?.total ?? 0;
+    dataSource.value = res.items;
+    total.value = res.total;
   } catch {
     message.error('加载参数列表失败');
   } finally {
@@ -79,7 +68,7 @@ function handlePageChange(page: number, size: number) {
   fetchData();
 }
 
-function openModal(record?: ConfigRecord) {
+function openModal(record?: ConfigItem) {
   editingRecord.value = record ?? null;
   if (record) {
     Object.assign(form, {
@@ -110,7 +99,7 @@ function handleSave() {
   modalVisible.value = false;
 }
 
-function handleDelete(record: ConfigRecord) {
+function handleDelete(record: ConfigItem) {
   dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
   total.value -= 1;
   message.success('已删除');
@@ -191,14 +180,14 @@ onMounted(fetchData);
               <AButton
                 type="link"
                 size="small"
-                @click="openModal(record as ConfigRecord)"
+                @click="openModal(record as ConfigItem)"
               >
                 编辑
               </AButton>
               <APopconfirm
                 v-if="record.type !== 'built-in'"
                 title="确定删除该参数？"
-                @confirm="handleDelete(record as ConfigRecord)"
+                @confirm="handleDelete(record as ConfigItem)"
               >
                 <AButton type="link" size="small" danger>删除</AButton>
               </APopconfirm>

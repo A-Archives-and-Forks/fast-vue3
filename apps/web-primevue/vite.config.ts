@@ -8,16 +8,5 @@ export default defineConfig(async () => {
       uiResolvers: [PrimeVueResolver()],
       uiAutoImportResolvers: [],
     },
-    vite: {
-      server: {
-        proxy: {
-          '/api': {
-            changeOrigin: true,
-            target: 'http://localhost:5320',
-            ws: true,
-          },
-        },
-      },
-    },
   };
 });

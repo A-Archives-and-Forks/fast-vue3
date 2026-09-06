@@ -1,10 +1,17 @@
 <script setup lang="ts">
+import type { ArticleItem } from '@/api';
+
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+import { api } from '@/api';
 import { useMessage } from '@idux/components/message';
 
-const { success: messageSuccess, warning: messageWarning } = useMessage();
+const {
+  error: messageError,
+  success: messageSuccess,
+  warning: messageWarning,
+} = useMessage();
 
 const route = useRoute();
 const router = useRouter();
@@ -16,18 +23,18 @@ const submitting = ref(false);
 
 interface ArticleForm {
   title: string;
-  category: string;
+  categoryId: number | undefined;
   author: string;
   summary: string;
   cover: string;
   content: string;
-  status: string;
+  status: ArticleItem['status'];
   tags: string[];
 }
 
 const form = reactive<ArticleForm>({
   title: '',
-  category: '',
+  categoryId: undefined,
   author: '',
   summary: '',
   cover: '',
@@ -36,37 +43,59 @@ const form = reactive<ArticleForm>({
   tags: [],
 });
 
-const categoryOptions = ['产品动态', '技术分享', '团队博客', '公告'];
+const categoryOptions = ref<{ id: number; name: string }[]>([]);
 const tagOptions = ['Vue', 'TypeScript', 'Vite', '架构', '教程', '公告'];
 
-function loadForEdit() {
-  if (!isEdit.value) return;
-  const cats = categoryOptions;
-  form.title = `${cats[editId.value % cats.length]}示例文章标题 ${String(editId.value).padStart(2, '0')}`;
-  form.category = cats[editId.value % cats.length];
-  form.author = ['张三', '李四', '王五'][editId.value % 3];
-  form.summary = '这是一篇用于演示内容管理模块的示例文章。';
-  form.cover = '';
-  form.content = '在此撰写文章正文内容……';
-  form.status = editId.value % 3 === 0 ? 'draft' : 'published';
-  form.tags = ['Vue', '教程'].slice(0, (editId.value % 2) + 1);
+async function loadForEdit() {
+  try {
+    const categories = await api.content.categoryList();
+    categoryOptions.value = categories.map(({ id, name }) => ({ id, name }));
+    if (!isEdit.value) return;
+    const article = await api.content.articleDetail(editId.value);
+    form.title = article.title;
+    form.categoryId = article.categoryId;
+    form.author = article.author;
+    form.summary = article.summary;
+    form.cover = article.cover;
+    form.content = article.content.join('\n\n');
+    form.status = article.status;
+    form.tags = [...article.tags];
+  } catch {
+    messageError('文章加载失败');
+  }
 }
 
-function handleSubmit() {
+async function handleSubmit() {
   if (!form.title) {
     messageWarning('请输入文章标题');
     return;
   }
-  if (!form.category) {
+  if (!form.categoryId) {
     messageWarning('请选择分类');
     return;
   }
   submitting.value = true;
-  setTimeout(() => {
-    submitting.value = false;
+  try {
+    const payload = {
+      author: form.author,
+      categoryId: form.categoryId,
+      content: form.content.split('\n\n'),
+      cover: form.cover,
+      status: form.status,
+      summary: form.summary,
+      tags: form.tags,
+      title: form.title,
+    };
+    await (isEdit.value
+      ? api.content.articleUpdate(editId.value, payload)
+      : api.content.articleCreate(payload));
     messageSuccess(isEdit.value ? '文章已更新' : '文章已创建');
     router.push('/content/article');
-  }, 600);
+  } catch {
+    messageError('保存失败');
+  } finally {
+    submitting.value = false;
+  }
 }
 
 function goBack() {
@@ -95,15 +124,15 @@ onMounted(loadForEdit);
         </IxFormItem>
         <IxFormItem label="分类">
           <IxSelect
-            v-model:value="form.category"
+            v-model:value="form.categoryId"
             placeholder="请选择分类"
             style="width: 100%"
           >
             <IxSelectOption
               v-for="c in categoryOptions"
-              :key="c"
-              :label="c"
-              :value="c"
+              :key="c.id"
+              :label="c.name"
+              :value="c.id"
             />
           </IxSelect>
         </IxFormItem>

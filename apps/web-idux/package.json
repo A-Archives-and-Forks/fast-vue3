@@ -6,11 +6,11 @@
   "scripts": {
     "dev": "vite --mode development",
     "build": "vue-tsc --noEmit && vite build --mode production",
-    "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@fast-vue3/api": "workspace:*",
     "@fast-vue3/layout": "workspace:*",
     "@fast-vue3/locales": "workspace:*",
     "@fast-vue3/preferences": "workspace:*",

@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { PermissionItem } from '@/api';
+
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import { useMessage } from '@idux/components/message';
 
 const { success: messageSuccess, error: messageError } = useMessage();
@@ -23,6 +25,7 @@ const loading = ref(true);
 const saving = ref(false);
 const role = ref<null | RoleRecord>(null);
 const checkedKeys = ref<string[]>([]);
+const availablePermissions = ref<PermissionItem[]>([]);
 
 const permissionTree = [
   {
@@ -34,9 +37,9 @@ const permissionTree = [
     title: '用户管理',
     key: 'user',
     children: [
-      { title: '查看', key: 'user:view' },
+      { title: '查看', key: 'user:list' },
       { title: '新增', key: 'user:create' },
-      { title: '编辑', key: 'user:edit' },
+      { title: '编辑', key: 'user:update' },
       { title: '删除', key: 'user:delete' },
     ],
   },
@@ -44,21 +47,21 @@ const permissionTree = [
     title: '角色管理',
     key: 'role',
     children: [
-      { title: '查看', key: 'role:view' },
+      { title: '查看', key: 'role:list' },
       { title: '配置权限', key: 'role:permission' },
     ],
   },
   {
     title: '菜单管理',
     key: 'menu',
-    children: [{ title: '查看', key: 'menu:view' }],
+    children: [{ title: '查看', key: 'menu:list' }],
   },
   {
     title: '内容管理',
     key: 'content',
     children: [
-      { title: '查看', key: 'content:view' },
-      { title: '编辑', key: 'content:edit' },
+      { title: '查看', key: 'content:list' },
+      { title: '编辑', key: 'content:update' },
     ],
   },
   {
@@ -73,37 +76,28 @@ const permissionTree = [
   },
 ];
 
-const defaultChecked = [
-  'dashboard:view',
-  'user:view',
-  'user:create',
-  'user:edit',
-  'role:view',
-  'content:view',
-  'log:view',
-  'settings:view',
-];
-
-function getCheckedKeys(found: RoleRecord) {
+function getCheckedKeys(found: RoleRecord, permissions: PermissionItem[]) {
   if (found.permissions.includes('*')) {
-    return permissionTree.flatMap((p) => p.children.map((c) => c.key));
+    return permissions.map(({ code }) => code);
   }
-  if (found.permissions.length > 0) {
-    return [...found.permissions];
-  }
-  return [...defaultChecked];
+  return [...found.permissions];
 }
 
 async function fetchRole() {
   loading.value = true;
   try {
     const id = Number(route.params.id);
-    const res = await http.get<{ items: RoleRecord[] }>({ url: '/role/list' });
-    const found = (res?.items ?? []).find((r) => r.id === id) ?? null;
-    role.value = found;
-    if (found) {
-      checkedKeys.value = getCheckedKeys(found);
-    }
+    const [found, permissions] = await Promise.all([
+      api.role.detail(id),
+      api.permission.list(),
+    ]);
+    availablePermissions.value = permissions;
+    role.value = {
+      ...found,
+      description: found.description ?? '',
+      status: 'active',
+    };
+    checkedKeys.value = getCheckedKeys(role.value, permissions);
   } catch {
     messageError('加载角色信息失败');
   } finally {
@@ -113,14 +107,23 @@ async function fetchRole() {
 
 const selectedCount = computed(() => checkedKeys.value.length);
 
-function handleSave() {
+async function handleSave() {
+  if (!role.value) return;
   saving.value = true;
-  setTimeout(() => {
-    saving.value = false;
+  try {
+    const selected = new Set(checkedKeys.value);
+    const permissionIds = availablePermissions.value
+      .filter(({ code }) => selected.has(code))
+      .map(({ id }) => id);
+    await api.role.update(role.value.id, { permissionIds });
     messageSuccess(
       `已保存「${role.value?.name ?? ''}」的权限配置（${selectedCount.value} 项）`,
     );
-  }, 500);
+  } catch {
+    messageError('权限配置保存失败');
+  } finally {
+    saving.value = false;
+  }
 }
 
 function goBack() {

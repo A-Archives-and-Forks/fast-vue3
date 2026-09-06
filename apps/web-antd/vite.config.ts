@@ -9,16 +9,5 @@ export default defineConfig(async () => {
         AntDesignVueResolver({ resolveIcons: true, importStyle: false }),
       ],
     },
-    vite: {
-      server: {
-        proxy: {
-          '/api': {
-            changeOrigin: true,
-            target: 'http://localhost:5320',
-            ws: true,
-          },
-        },
-      },
-    },
   };
 });

@@ -38,14 +38,17 @@ async function fetchData() {
   loading.value = true;
   try {
     const res = await http.get<{ items: RoleRecord[]; total: number }>({
-      url: '/role/list',
+      url: '/roles',
       params: {
         page: currentPage.value,
         pageSize: pageSize.value,
         keyword: keyword.value,
       },
     });
-    dataSource.value = res?.items ?? [];
+    dataSource.value = (res?.items ?? []).map((item) => ({
+      ...item,
+      status: 'active',
+    }));
     total.value = res?.total ?? 0;
   } catch {
     ElMessage.error('加载角色列表失败');
@@ -84,37 +87,35 @@ function openDialog(record?: RoleRecord) {
   dialogVisible.value = true;
 }
 
-function handleSave() {
+async function handleSave() {
   if (!form.name || !form.code) {
     ElMessage.warning('请填写必要信息');
     return;
   }
-  if (editingRecord.value) {
-    const currentId = editingRecord.value.id;
-    const idx = dataSource.value.findIndex((r) => r.id === currentId);
-    if (idx !== -1) {
-      dataSource.value[idx] = { ...dataSource.value[idx], ...form };
+  try {
+    const payload = { description: form.description, name: form.name };
+    if (editingRecord.value) {
+      await http.put({
+        data: payload,
+        url: `/roles/${editingRecord.value.id}`,
+      });
+      ElMessage.success('角色已更新');
+    } else {
+      await http.post({ data: { ...payload, code: form.code }, url: '/roles' });
+      ElMessage.success('角色已创建');
     }
-    ElMessage.success('角色已更新');
-  } else {
-    const maxId = Math.max(...dataSource.value.map((r) => r.id), 0);
-    dataSource.value.unshift({
-      id: maxId + 1,
-      ...form,
-      permissions: [],
-      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 19),
-    });
-    total.value += 1;
-    ElMessage.success('角色已创建');
+    dialogVisible.value = false;
+    fetchData();
+  } catch {
+    ElMessage.error('角色保存失败');
   }
-  dialogVisible.value = false;
 }
 
 async function handleDelete(record: RoleRecord) {
   await ElMessageBox.confirm('确定删除该角色？', '提示', { type: 'warning' });
-  dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
-  total.value -= 1;
+  await http.del({ url: `/roles/${record.id}` });
   ElMessage.success('已删除');
+  fetchData();
 }
 
 onMounted(fetchData);

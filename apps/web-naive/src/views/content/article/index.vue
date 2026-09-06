@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import type { ArticleItem } from '@/api';
+
 import { computed, h, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+import { api } from '@/api';
 import {
   NButton,
   NDataTable,
@@ -36,59 +39,50 @@ const keyword = ref('');
 const categoryFilter = ref<null | string>(null);
 const statusFilter = ref<null | string>(null);
 
-const categoryOptions = ['产品动态', '技术分享', '团队博客', '公告'].map(
-  (c) => ({ label: c, value: c }),
-);
+const categoryOptions = ref<{ id: number; label: string; value: string }[]>([]);
 const statusOptions = [
   { label: '已发布', value: 'published' },
   { label: '草稿', value: 'draft' },
 ];
 
-function seed(): ArticleRecord[] {
-  const cats = ['产品动态', '技术分享', '团队博客', '公告'];
-  const list: ArticleRecord[] = [];
-  for (let i = 1; i <= 46; i++) {
-    const published = i % 3 !== 0;
-    list.push({
-      id: i,
-      title: `${cats[i % cats.length]}示例文章标题 ${String(i).padStart(2, '0')}`,
-      category: cats[i % cats.length],
-      author: ['张三', '李四', '王五'][i % 3],
-      status: published ? 'published' : 'draft',
-      views: 200 + ((i * 137) % 5200),
-      cover: '',
-      summary:
-        '这是一篇用于演示内容管理模块的示例文章，涵盖业务场景与真实交互。',
-      publishedAt: `2026-0${(i % 9) + 1}-${String((i % 27) + 1).padStart(2, '0')} 1${i % 9}:24:00`,
-    });
-  }
-  return list;
+function toRecord(article: ArticleItem): ArticleRecord {
+  return { ...article, publishedAt: article.date, views: 0 };
 }
 
-function applyFilter() {
-  const all = seed();
-  const filtered = all.filter((a) => {
-    const matchKeyword =
-      !keyword.value ||
-      a.title.includes(keyword.value) ||
-      a.author.includes(keyword.value);
-    const matchCategory =
-      !categoryFilter.value || a.category === categoryFilter.value;
-    const matchStatus = !statusFilter.value || a.status === statusFilter.value;
-    return matchKeyword && matchCategory && matchStatus;
-  });
-  total.value = filtered.length;
-  const start = (currentPage.value - 1) * pageSize.value;
-  dataSource.value = filtered.slice(start, start + pageSize.value);
+async function loadCategories() {
+  const categories = await api.content.categoryList();
+  categoryOptions.value = categories.map(({ id, name }) => ({
+    id,
+    label: name,
+    value: name,
+  }));
+}
+
+async function fetchData() {
+  loading.value = true;
+  try {
+    const categoryId = categoryOptions.value.find(
+      (item) => item.value === categoryFilter.value,
+    )?.id;
+    const result = await api.content.articleList({
+      categoryId,
+      keyword: keyword.value || undefined,
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      status: statusFilter.value as ArticleItem['status'] | undefined,
+    });
+    dataSource.value = result.items.map((article) => toRecord(article));
+    total.value = result.total;
+  } catch {
+    message.error('加载文章列表失败');
+  } finally {
+    loading.value = false;
+  }
 }
 
 function handleSearch() {
   currentPage.value = 1;
-  loading.value = true;
-  setTimeout(() => {
-    applyFilter();
-    loading.value = false;
-  }, 200);
+  fetchData();
 }
 
 function handleReset() {
@@ -96,26 +90,18 @@ function handleReset() {
   categoryFilter.value = null;
   statusFilter.value = null;
   currentPage.value = 1;
-  handleSearch();
+  fetchData();
 }
 
 function handlePageChange(page: number) {
   currentPage.value = page;
-  loading.value = true;
-  setTimeout(() => {
-    applyFilter();
-    loading.value = false;
-  }, 200);
+  fetchData();
 }
 
 function handleSizeChange(size: number) {
   pageSize.value = size;
   currentPage.value = 1;
-  loading.value = true;
-  setTimeout(() => {
-    applyFilter();
-    loading.value = false;
-  }, 200);
+  fetchData();
 }
 
 function goCreate() {
@@ -124,10 +110,14 @@ function goCreate() {
 function goEdit(record: ArticleRecord) {
   router.push(`/content/article/edit?id=${record.id}`);
 }
-function handleDelete(record: ArticleRecord) {
-  dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
-  total.value -= 1;
-  message.success('文章已删除');
+async function handleDelete(record: ArticleRecord) {
+  try {
+    await api.content.articleDelete(record.id);
+    message.success('文章已删除');
+    fetchData();
+  } catch {
+    message.error('删除失败');
+  }
 }
 
 const columns = [
@@ -215,7 +205,13 @@ const pagination = computed(() => ({
   onUpdatePageSize: handleSizeChange,
 }));
 
-onMounted(handleSearch);
+onMounted(async () => {
+  try {
+    await loadCategories();
+  } finally {
+    fetchData();
+  }
+});
 </script>
 
 <template>

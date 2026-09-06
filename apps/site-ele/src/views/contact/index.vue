@@ -3,6 +3,7 @@ import type { FormInstance } from 'element-plus';
 
 import { reactive, ref } from 'vue';
 
+import { api } from '@/api';
 import { Link as GithubLink, Location, Message } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 
@@ -29,11 +30,19 @@ async function handleSubmit() {
     return;
   }
   submitting.value = true;
-  setTimeout(() => {
-    submitting.value = false;
+  try {
+    await api.portal.contact({
+      email: form.email,
+      name: form.name,
+      message: `[${form.subject}] ${form.message}`,
+    });
     ElMessage.success('提交成功，我们会尽快与你联系');
     formRef.value?.resetFields();
-  }, 600);
+  } catch {
+    ElMessage.error('提交失败，请稍后重试');
+  } finally {
+    submitting.value = false;
+  }
 }
 </script>
 

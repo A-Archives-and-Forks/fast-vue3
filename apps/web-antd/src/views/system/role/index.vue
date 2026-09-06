@@ -1,29 +1,21 @@
 <script setup lang="ts">
+import type { RoleItem } from '@/api';
+
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import { message } from 'ant-design-vue';
 
-interface RoleRecord {
-  id: number;
-  name: string;
-  code: string;
-  description: string;
-  status: string;
-  permissions: string[];
-  createdAt: string;
-}
-
 const loading = ref(false);
-const dataSource = ref<RoleRecord[]>([]);
+const dataSource = ref<RoleItem[]>([]);
 const total = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
 const keyword = ref('');
 
 const modalVisible = ref(false);
-const editingRecord = ref<null | RoleRecord>(null);
+const editingRecord = ref<null | RoleItem>(null);
 
 const router = useRouter();
 
@@ -47,16 +39,13 @@ const columns = [
 async function fetchData() {
   loading.value = true;
   try {
-    const res = await http.get<{ items: RoleRecord[]; total: number }>({
-      url: '/role/list',
-      params: {
-        page: currentPage.value,
-        pageSize: pageSize.value,
-        keyword: keyword.value,
-      },
+    const res = await api.role.list({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      keyword: keyword.value || undefined,
     });
-    dataSource.value = res?.items ?? [];
-    total.value = res?.total ?? 0;
+    dataSource.value = res.items;
+    total.value = res.total;
   } catch {
     message.error('加载角色列表失败');
   } finally {
@@ -75,14 +64,14 @@ function handlePageChange(page: number, size: number) {
   fetchData();
 }
 
-function openModal(record?: RoleRecord) {
+function openModal(record?: RoleItem) {
   editingRecord.value = record ?? null;
   if (record) {
     Object.assign(form, {
       name: record.name,
       code: record.code,
       description: record.description,
-      status: record.status,
+      status: 'active',
     });
   } else {
     Object.assign(form, {
@@ -95,36 +84,41 @@ function openModal(record?: RoleRecord) {
   modalVisible.value = true;
 }
 
-function handleSave() {
+async function handleSave() {
   if (!form.name || !form.code) {
     message.warning('请填写必要信息');
     return;
   }
-  if (editingRecord.value) {
-    const currentId = editingRecord.value.id;
-    const idx = dataSource.value.findIndex((r) => r.id === currentId);
-    if (idx !== -1) {
-      dataSource.value[idx] = { ...dataSource.value[idx], ...form };
+  try {
+    if (editingRecord.value) {
+      await api.role.update(editingRecord.value.id, {
+        name: form.name,
+        description: form.description,
+      });
+      message.success('角色已更新');
+    } else {
+      await api.role.create({
+        name: form.name,
+        code: form.code,
+        description: form.description,
+      });
+      message.success('角色已创建');
     }
-    message.success('角色已更新');
-  } else {
-    const maxId = Math.max(...dataSource.value.map((r) => r.id), 0);
-    dataSource.value.unshift({
-      id: maxId + 1,
-      ...form,
-      permissions: [],
-      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 19),
-    });
-    total.value += 1;
-    message.success('角色已创建');
+    modalVisible.value = false;
+    fetchData();
+  } catch {
+    message.error('保存角色失败');
   }
-  modalVisible.value = false;
 }
 
-function handleDelete(record: RoleRecord) {
-  dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
-  total.value -= 1;
-  message.success('已删除');
+async function handleDelete(record: RoleItem) {
+  try {
+    await api.role.delete(record.id);
+    message.success('已删除');
+    fetchData();
+  } catch {
+    message.error('删除角色失败');
+  }
 }
 
 const paginationConfig = computed(() => ({
@@ -172,16 +166,14 @@ onMounted(fetchData);
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'status'">
-              <ABadge
-                :status="record.status === 'active' ? 'success' : 'default'"
-              />
-              <span>{{ record.status === 'active' ? '启用' : '禁用' }}</span>
+              <ABadge status="success" />
+              <span>启用</span>
             </template>
             <template v-if="column.key === 'action'">
               <AButton
                 type="link"
                 size="small"
-                @click="openModal(record as RoleRecord)"
+                @click="openModal(record as RoleItem)"
               >
                 编辑
               </AButton>
@@ -194,7 +186,7 @@ onMounted(fetchData);
               </AButton>
               <APopconfirm
                 title="确定删除该角色？"
-                @confirm="handleDelete(record as RoleRecord)"
+                @confirm="handleDelete(record as RoleItem)"
               >
                 <AButton type="link" size="small" danger>删除</AButton>
               </APopconfirm>

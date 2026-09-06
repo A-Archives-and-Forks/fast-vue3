@@ -260,16 +260,16 @@ const faqs = [
           <p class="site-section-desc">你关心的，我们都想到了</p>
         </div>
         <div v-reveal class="faq-panel">
-          <NAccordion>
-            <NAccordionItem
+          <NCollapse>
+            <NCollapseItem
               v-for="item in faqs"
               :key="item.q"
               :title="item.q"
               :name="item.q"
             >
               <p class="faq-answer">{{ item.a }}</p>
-            </NAccordionItem>
-          </NAccordion>
+            </NCollapseItem>
+          </NCollapse>
           <div class="faq-more">
             <RouterLink to="/faq" class="faq-more-link">
               查看更多问题 →

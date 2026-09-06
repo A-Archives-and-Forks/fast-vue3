@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Article } from '@/mock/content';
+import type { ArticleItem } from '@/api';
 
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { articles } from '@/mock/content';
+import { api } from '@/api';
 import { ArrowLeftOutlined, EditOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 
@@ -12,22 +12,24 @@ const route = useRoute();
 const router = useRouter();
 
 const loading = ref(true);
-const article = ref<Article | null>(null);
+const article = ref<ArticleItem | null>(null);
 
 const coverText = computed(() =>
   (article.value?.category ?? '封面').slice(0, 2),
 );
 
-onMounted(() => {
+onMounted(async () => {
   loading.value = true;
   const id = Number(route.params.id);
-  const found = articles.find((a) => a.id === id) ?? null;
-  // 模拟加载
-  setTimeout(() => {
+  try {
+    const found = await api.content.articleDetail(id);
     article.value = found;
+  } catch {
+    article.value = null;
+    message.warning('未找到对应文章');
+  } finally {
     loading.value = false;
-    if (!found) message.warning('未找到对应文章');
-  }, 200);
+  }
 });
 
 function goBack() {

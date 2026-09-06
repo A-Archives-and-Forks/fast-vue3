@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { PermissionItem } from '@/api';
+
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import {
   NButton,
   NCard,
@@ -30,6 +32,7 @@ const loading = ref(true);
 const saving = ref(false);
 const role = ref<null | RoleRecord>(null);
 const checkedKeys = ref<string[]>([]);
+const availablePermissions = ref<PermissionItem[]>([]);
 
 const permissionTree = [
   {
@@ -41,9 +44,9 @@ const permissionTree = [
     label: '用户管理',
     key: 'user',
     children: [
-      { label: '查看', key: 'user:view' },
+      { label: '查看', key: 'user:list' },
       { label: '新增', key: 'user:create' },
-      { label: '编辑', key: 'user:edit' },
+      { label: '编辑', key: 'user:update' },
       { label: '删除', key: 'user:delete' },
     ],
   },
@@ -51,21 +54,21 @@ const permissionTree = [
     label: '角色管理',
     key: 'role',
     children: [
-      { label: '查看', key: 'role:view' },
+      { label: '查看', key: 'role:list' },
       { label: '配置权限', key: 'role:permission' },
     ],
   },
   {
     label: '菜单管理',
     key: 'menu',
-    children: [{ label: '查看', key: 'menu:view' }],
+    children: [{ label: '查看', key: 'menu:list' }],
   },
   {
     label: '内容管理',
     key: 'content',
     children: [
-      { label: '查看', key: 'content:view' },
-      { label: '编辑', key: 'content:edit' },
+      { label: '查看', key: 'content:list' },
+      { label: '编辑', key: 'content:update' },
     ],
   },
   {
@@ -84,21 +87,19 @@ async function fetchRole() {
   loading.value = true;
   try {
     const id = Number(route.params.id);
-    const res = await http.get<{ items: RoleRecord[] }>({ url: '/role/list' });
-    const found = (res?.items ?? []).find((r) => r.id === id) ?? null;
-    role.value = found;
-    if (found) {
-      checkedKeys.value = [
-        'dashboard:view',
-        'user:view',
-        'user:create',
-        'user:edit',
-        'role:view',
-        'content:view',
-        'log:view',
-        'settings:view',
-      ];
-    }
+    const [found, permissions] = await Promise.all([
+      api.role.detail(id),
+      api.permission.list(),
+    ]);
+    availablePermissions.value = permissions;
+    role.value = {
+      ...found,
+      description: found.description ?? '',
+      status: 'active',
+    };
+    checkedKeys.value = found.permissions.includes('*')
+      ? permissions.map(({ code }) => code)
+      : [...found.permissions];
   } catch {
     message.error('加载角色信息失败');
   } finally {
@@ -108,14 +109,23 @@ async function fetchRole() {
 
 const selectedCount = computed(() => checkedKeys.value.length);
 
-function handleSave() {
+async function handleSave() {
+  if (!role.value) return;
   saving.value = true;
-  setTimeout(() => {
-    saving.value = false;
+  try {
+    const selected = new Set(checkedKeys.value);
+    const permissionIds = availablePermissions.value
+      .filter(({ code }) => selected.has(code))
+      .map(({ id }) => id);
+    await api.role.update(role.value.id, { permissionIds });
     message.success(
       `已保存「${role.value?.name ?? ''}」的权限配置（${selectedCount.value} 项）`,
     );
-  }, 500);
+  } catch {
+    message.error('权限配置保存失败');
+  } finally {
+    saving.value = false;
+  }
 }
 
 function goBack() {

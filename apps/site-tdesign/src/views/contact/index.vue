@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 
+import { api } from '@/api';
 import { MessagePlugin } from 'tdesign-vue-next';
 
 const submitting = ref(false);
-const formRef = ref();
 const form = reactive({
   name: '',
   email: '',
@@ -24,14 +24,22 @@ async function handleSubmit() {
     return;
   }
   submitting.value = true;
-  setTimeout(() => {
-    submitting.value = false;
+  try {
+    await api.portal.contact({
+      email: form.email,
+      name: form.name,
+      message: `[${form.subject}] ${form.message}`,
+    });
     MessagePlugin.success('提交成功，我们会尽快与你联系');
     form.name = '';
     form.email = '';
     form.subject = '';
     form.message = '';
-  }, 600);
+  } catch {
+    MessagePlugin.error('提交失败，请稍后重试');
+  } finally {
+    submitting.value = false;
+  }
 }
 </script>
 
@@ -65,12 +73,7 @@ async function handleSubmit() {
 
         <!-- Form -->
         <div v-reveal-right class="site-card contact-form">
-          <t-form
-            ref="formRef"
-            :data="form"
-            label-align="top"
-            @submit="handleSubmit"
-          >
+          <t-form :data="form" label-align="top" @submit="handleSubmit">
             <div class="form-row">
               <t-form-item
                 name="name"

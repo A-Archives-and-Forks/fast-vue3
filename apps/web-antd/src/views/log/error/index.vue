@@ -1,30 +1,20 @@
 <script setup lang="ts">
+import type { ErrorLogItem } from '@/api';
+
 import { computed, onMounted, ref } from 'vue';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import { message } from 'ant-design-vue';
 
-interface ErrorLog {
-  id: number;
-  type: string;
-  message: string;
-  page: string;
-  stack: string;
-  browser: string;
-  os: string;
-  status: string;
-  createdAt: string;
-}
-
 const loading = ref(false);
-const dataSource = ref<ErrorLog[]>([]);
+const dataSource = ref<ErrorLogItem[]>([]);
 const total = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
 const statusFilter = ref('');
 
 const detailVisible = ref(false);
-const detailRecord = ref<ErrorLog | null>(null);
+const detailRecord = ref<ErrorLogItem | null>(null);
 
 const columns = [
   { title: 'ID', dataIndex: 'id', width: 60 },
@@ -40,16 +30,13 @@ const columns = [
 async function fetchData() {
   loading.value = true;
   try {
-    const res = await http.get<{ items: ErrorLog[]; total: number }>({
-      url: '/log/error',
-      params: {
-        page: currentPage.value,
-        pageSize: pageSize.value,
-        status: statusFilter.value,
-      },
+    const res = await api.log.error({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      status: statusFilter.value || undefined,
     });
-    dataSource.value = res?.items ?? [];
-    total.value = res?.total ?? 0;
+    dataSource.value = res.items;
+    total.value = res.total;
   } catch {
     message.error('加载错误日志失败');
   } finally {
@@ -68,12 +55,12 @@ function handlePageChange(page: number, size: number) {
   fetchData();
 }
 
-function openDetail(record: ErrorLog) {
+function openDetail(record: ErrorLogItem) {
   detailRecord.value = record;
   detailVisible.value = true;
 }
 
-function handleResolve(record: ErrorLog) {
+function handleResolve(record: ErrorLogItem) {
   record.status = 'resolved';
   message.success('已标记为已解决');
 }
@@ -136,15 +123,15 @@ onMounted(fetchData);
               <AButton
                 type="link"
                 size="small"
-                @click="openDetail(record as ErrorLog)"
+                @click="openDetail(record as ErrorLogItem)"
               >
-                详情
+                > 详情
               </AButton>
               <AButton
                 v-if="record.status === 'pending'"
                 type="link"
                 size="small"
-                @click="handleResolve(record as ErrorLog)"
+                @click="handleResolve(record as ErrorLogItem)"
               >
                 解决
               </AButton>

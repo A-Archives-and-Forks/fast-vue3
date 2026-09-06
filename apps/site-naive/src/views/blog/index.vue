@@ -1,16 +1,29 @@
 <script setup lang="ts">
-import type { BlogPost } from '@/mock/blog';
+import type { BlogPost } from '@/api';
 
-import { computed, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { blogCategories, blogPosts } from '@/mock/blog';
+import { api } from '@/api';
 
 const router = useRouter();
 
 const currentPage = ref(1);
 const pageSize = 6;
 const categoryFilter = ref<string>('全部');
+const blogPosts = reactive<BlogPost[]>([]);
+const blogCategories = ref<string[]>(['全部']);
+
+async function loadPosts() {
+  const result = await api.portal.blogList({ page: 1, pageSize: 100 });
+  blogPosts.splice(0, blogPosts.length, ...result.items);
+  blogCategories.value = [
+    '全部',
+    ...result.categories.filter((category) => category !== '全部'),
+  ];
+}
+
+onMounted(loadPosts);
 
 const filtered = computed(() =>
   categoryFilter.value === '全部'
@@ -25,7 +38,9 @@ const paged = computed(() => {
 
 const total = computed(() => filtered.value.length);
 
-const categoryOptions = blogCategories.map((c) => ({ label: c, value: c }));
+const categoryOptions = computed(() =>
+  blogCategories.value.map((c) => ({ label: c, value: c })),
+);
 
 function handleCategoryChange() {
   currentPage.value = 1;

@@ -29,7 +29,6 @@ This repository is a Vue 3 + TypeScript monorepo for building the same admin/sit
 - Install with `pnpm install`.
 - Run an interactive dev target with `pnpm dev`.
 - Run a specific app with `pnpm dev:<app-name>`, for example `pnpm dev:web-antd` or `pnpm dev:site-antd`.
-- Legacy short aliases also exist for admin apps, for example `pnpm dev:antd`.
 - Build a specific app with `pnpm build:<app-name>`, for example `pnpm build:web-antd`.
 - Check lint/format with `pnpm lint`.
 - Auto-fix lint/format issues with `pnpm format`.
@@ -80,3 +79,11 @@ Front-end app `.env.development` and `.env.production` are shared environment te
 `pnpm lint` may emit warnings for underscore-prefixed internals and two existing `v-html` usages, but it should exit successfully. Fix new errors rather than weakening global lint rules.
 
 When fixing `unicorn/no-nested-ternary`, prefer small helper functions or straightforward `if` branches over parenthesizing complex nested ternaries.
+
+## Related Repositories And Documentation
+
+- Long-form documentation is maintained in the sibling `fast-vue3-site` repository and published at `https://tobe-fe-dalao.github.io/fast-vue3-site/`.
+- The Spring Boot reference backend lives in the sibling `fast-vue3-server` repository. Its documentation belongs under `fast-vue3-site/docs/<locale>/server/`, not in the server repository.
+- Keep this repository's README files concise and link to the documentation site instead of duplicating guides here.
+- When the `/api/v1` contract changes, update `packages/effects/api`, the Nitro mock, affected application code and tests, the Java server, and the relevant pages in `fast-vue3-site` together.
+- English (`docs/en`) is the canonical long-form documentation. Keep Simplified Chinese, Traditional Chinese (Taiwan and Hong Kong), and Japanese routes aligned when changing shared navigation or documented behavior.

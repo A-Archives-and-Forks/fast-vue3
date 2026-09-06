@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 
+import { api } from '@/api';
 import { useMessage } from '@idux/components/message';
 
-const { success: messageSuccess, warning: messageWarning } = useMessage();
+const {
+  error: messageError,
+  success: messageSuccess,
+  warning: messageWarning,
+} = useMessage();
 
 const submitting = ref(false);
 const form = reactive({
@@ -19,7 +24,7 @@ const contactInfo = [
   { icon: '🐙', label: '开源', value: 'github.com/fast-vue3' },
 ];
 
-function handleSubmit() {
+async function handleSubmit() {
   if (!form.name) {
     messageWarning('请输入姓名');
     return;
@@ -37,14 +42,22 @@ function handleSubmit() {
     return;
   }
   submitting.value = true;
-  setTimeout(() => {
-    submitting.value = false;
+  try {
+    await api.portal.contact({
+      email: form.email,
+      name: form.name,
+      message: `[${form.subject}] ${form.message}`,
+    });
     messageSuccess('提交成功，我们会尽快与你联系');
     form.name = '';
     form.email = '';
     form.subject = '';
     form.message = '';
-  }, 600);
+  } catch {
+    messageError('提交失败，请稍后重试');
+  } finally {
+    submitting.value = false;
+  }
 }
 </script>
 

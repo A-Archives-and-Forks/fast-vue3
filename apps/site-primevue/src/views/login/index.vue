@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
+import { setRefreshToken, setToken } from '@fast-vue3/utils';
+
+import { api } from '@/api';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
 import Divider from 'primevue/divider';
 import { useToast } from 'primevue/usetoast';
 
 const router = useRouter();
+const route = useRoute();
 const toast = useToast();
 const loading = ref(false);
 const form = reactive({ username: '', password: '', remember: true });
@@ -23,15 +27,32 @@ async function handleLogin() {
     return;
   }
   loading.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  toast.add({
-    severity: 'success',
-    summary: '成功',
-    detail: '登录成功',
-    life: 3000,
-  });
-  loading.value = false;
-  router.push('/');
+  try {
+    const result = await api.auth.login(form);
+    setToken(result.accessToken);
+    setRefreshToken(result.refreshToken);
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: '登录成功',
+      life: 3000,
+    });
+    const requestedRedirect = route.query.redirect;
+    const redirect =
+      typeof requestedRedirect === 'string' && requestedRedirect.startsWith('/')
+        ? requestedRedirect
+        : '/';
+    router.push(redirect);
+  } catch {
+    toast.add({
+      severity: 'error',
+      summary: '登录失败',
+      detail: '请检查用户名和密码',
+      life: 3000,
+    });
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
 

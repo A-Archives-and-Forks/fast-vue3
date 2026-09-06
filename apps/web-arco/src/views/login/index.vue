@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useUserStore } from '@fast-vue3/stores';
+import { setRefreshToken } from '@fast-vue3/utils';
 
 import { userApi } from '@/api/user';
 import { Message } from '@arco-design/web-vue';
@@ -16,7 +17,8 @@ async function onLogin() {
   loading.value = true;
   try {
     const res = await userApi.login(form);
-    userStore.setToken(res.token);
+    userStore.setToken(res.accessToken);
+    setRefreshToken(res.refreshToken);
     const profile = await userApi.getProfile();
     userStore.setUserInfo(profile);
     Message.success('登录成功');

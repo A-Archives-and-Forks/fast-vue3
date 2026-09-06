@@ -15,6 +15,16 @@ const getString = (value: string | undefined, fallback: string) =>
 const getNumber = (value: string | undefined, fallback: number) =>
   Number(value) || fallback;
 
+const getDevBackend = (value: string | undefined) => {
+  if (value === undefined || value === 'mock' || value === 'server') {
+    return value ?? 'mock';
+  }
+
+  throw new Error(
+    `Invalid VITE_DEV_BACKEND value "${value}". Expected "mock" or "server".`,
+  );
+};
+
 /**
  * 获取当前环境下生效的配置文件名
  */
@@ -60,7 +70,14 @@ async function loadEnv<T = Record<string, string>>(
       Reflect.deleteProperty(envConfig, key);
     }
   });
-  return envConfig as T;
+
+  const processEnvConfig = Object.fromEntries(
+    Object.entries(process.env).filter(
+      ([key, value]) => reg.test(key) && value !== undefined,
+    ),
+  );
+
+  return { ...envConfig, ...processEnvConfig } as T;
 }
 
 async function loadAndConvertEnv(
@@ -68,8 +85,10 @@ async function loadAndConvertEnv(
   confFiles = getConfFiles(),
 ): Promise<
   Partial<ApplicationPluginOptions> & {
+    apiTarget: string;
     appTitle: string;
     base: string;
+    devBackend: 'mock' | 'server';
     port: number;
   }
 > {
@@ -78,10 +97,12 @@ async function loadAndConvertEnv(
     VITE_APP_TITLE,
     VITE_ARCHIVER,
     VITE_BASE,
+    VITE_BASE_URL,
     VITE_COMPRESS,
+    VITE_DEV_BACKEND,
     VITE_DEVTOOLS,
+    VITE_FAST_VUE3_SERVER_URL,
     VITE_INJECT_APP_LOADING,
-    VITE_NITRO_MOCK,
     VITE_PORT,
     VITE_PWA,
     VITE_VISUALIZER,
@@ -90,17 +111,24 @@ async function loadAndConvertEnv(
   const compressTypes = (VITE_COMPRESS ?? '')
     .split(',')
     .filter((item) => item === 'brotli' || item === 'gzip');
+  const devBackend = getDevBackend(VITE_DEV_BACKEND);
 
   return {
+    apiTarget:
+      devBackend === 'server'
+        ? getString(VITE_FAST_VUE3_SERVER_URL, 'http://localhost:8080')
+        : 'http://localhost:5320',
     appTitle: getString(VITE_APP_TITLE, 'Vue H5 Template'),
     archiver: getBoolean(VITE_ARCHIVER),
-    base: getString(VITE_BASE, '/'),
+    // 应用侧统一使用 VITE_BASE_URL（router 也读它），这里兼容旧名 VITE_BASE
+    base: getString(VITE_BASE_URL ?? VITE_BASE, '/'),
     compress: compressTypes.length > 0,
     compressTypes,
+    devBackend,
     devtools: getBoolean(VITE_DEVTOOLS),
     injectAppLoading: getBoolean(VITE_INJECT_APP_LOADING),
-    ...(VITE_NITRO_MOCK !== undefined && {
-      nitroMock: getBoolean(VITE_NITRO_MOCK),
+    ...(VITE_DEV_BACKEND !== undefined && {
+      nitroMock: devBackend === 'mock',
     }),
     port: getNumber(VITE_PORT, 5173),
     pwa: getBoolean(VITE_PWA),

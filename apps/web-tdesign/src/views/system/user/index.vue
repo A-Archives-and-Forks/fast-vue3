@@ -8,6 +8,7 @@ interface UserRecord {
   id: number;
   username: string;
   realName: string;
+  nickname?: string;
   email: string;
   phone: string;
   roles: string[];
@@ -65,7 +66,7 @@ async function fetchData() {
   loading.value = true;
   try {
     const res = await http.get<{ items: UserRecord[]; total: number }>({
-      url: '/user/list',
+      url: '/users',
       params: {
         page: currentPage.value,
         pageSize: pageSize.value,
@@ -74,7 +75,11 @@ async function fetchData() {
         role: roleFilter.value,
       },
     });
-    dataSource.value = res?.items ?? [];
+    dataSource.value = (res?.items ?? []).map((user) => ({
+      ...user,
+      department: user.department || '',
+      realName: user.realName || user.nickname || user.username,
+    }));
     total.value = res?.total ?? 0;
   } catch {
     MessagePlugin.error('加载用户列表失败');
@@ -133,40 +138,54 @@ function openDetail(record: UserRecord) {
   detailVisible.value = true;
 }
 
-function handleSave() {
+async function handleSave() {
   if (!form.username || !form.realName) {
     MessagePlugin.warning('请填写必要信息');
     return;
   }
-  if (editingRecord.value) {
-    const currentId = editingRecord.value.id;
-    const idx = dataSource.value.findIndex((r) => r.id === currentId);
-    if (idx !== -1) {
-      dataSource.value[idx] = { ...dataSource.value[idx], ...form };
+  try {
+    const data = {
+      email: form.email,
+      nickname: form.realName,
+      phone: form.phone,
+      status: form.status === 'active' ? 'active' : 'disabled',
+    };
+    if (editingRecord.value) {
+      await http.put({ data, url: `/users/${editingRecord.value.id}` });
+      MessagePlugin.success('用户已更新');
+    } else {
+      await http.post({
+        data: { ...data, password: '123456', username: form.username },
+        url: '/users',
+      });
+      MessagePlugin.success('用户已创建，初始密码为 123456');
     }
-    MessagePlugin.success('用户已更新');
-  } else {
-    const maxId = Math.max(...dataSource.value.map((r) => r.id), 0);
-    dataSource.value.unshift({
-      id: maxId + 1,
-      ...form,
-      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 19),
-    });
-    total.value += 1;
-    MessagePlugin.success('用户已创建');
+    dialogVisible.value = false;
+    fetchData();
+  } catch {
+    MessagePlugin.error('用户保存失败');
   }
-  dialogVisible.value = false;
 }
 
-function handleDelete(record: UserRecord) {
-  dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
-  total.value -= 1;
-  MessagePlugin.success('已删除');
+async function handleDelete(record: UserRecord) {
+  try {
+    await http.del({ url: `/users/${record.id}` });
+    MessagePlugin.success('已删除');
+    fetchData();
+  } catch {
+    MessagePlugin.error('删除失败');
+  }
 }
 
-function handleToggleStatus(record: UserRecord) {
-  record.status = record.status === 'active' ? 'inactive' : 'active';
-  MessagePlugin.success(`已${record.status === 'active' ? '启用' : '禁用'}`);
+async function handleToggleStatus(record: UserRecord) {
+  const status = record.status === 'active' ? 'disabled' : 'active';
+  try {
+    await http.put({ data: { status }, url: `/users/${record.id}` });
+    record.status = status;
+    MessagePlugin.success(`已${status === 'active' ? '启用' : '禁用'}`);
+  } catch {
+    MessagePlugin.error('状态更新失败');
+  }
 }
 
 onMounted(fetchData);
@@ -192,7 +211,7 @@ onMounted(fetchData);
         <t-col :span="4">
           <t-select v-model="statusFilter" placeholder="状态" clearable>
             <t-option label="启用" value="active" />
-            <t-option label="禁用" value="inactive" />
+            <t-option label="禁用" value="disabled" />
           </t-select>
         </t-col>
         <t-col :span="4">
@@ -338,7 +357,7 @@ onMounted(fetchData);
         <t-form-item label="状态">
           <t-radio-group v-model="form.status">
             <t-radio value="active">启用</t-radio>
-            <t-radio value="inactive">禁用</t-radio>
+            <t-radio value="disabled">禁用</t-radio>
           </t-radio-group>
         </t-form-item>
       </t-form>

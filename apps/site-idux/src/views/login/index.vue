@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
+import { setRefreshToken, setToken } from '@fast-vue3/utils';
+
+import { api } from '@/api';
 import { useMessage } from '@idux/components/message';
 
 const router = useRouter();
-const { success: msgSuccess, warning: msgWarning } = useMessage();
+const route = useRoute();
+const {
+  error: msgError,
+  success: msgSuccess,
+  warning: msgWarning,
+} = useMessage();
 const loading = ref(false);
 
 const form = reactive({
@@ -20,10 +28,22 @@ async function handleLogin() {
     return;
   }
   loading.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  msgSuccess('登录成功');
-  loading.value = false;
-  router.push('/');
+  try {
+    const result = await api.auth.login(form);
+    setToken(result.accessToken);
+    setRefreshToken(result.refreshToken);
+    msgSuccess('登录成功');
+    const requestedRedirect = route.query.redirect;
+    const redirect =
+      typeof requestedRedirect === 'string' && requestedRedirect.startsWith('/')
+        ? requestedRedirect
+        : '/';
+    router.push(redirect);
+  } catch {
+    msgError('登录失败，请检查用户名和密码');
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
 

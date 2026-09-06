@@ -16,6 +16,11 @@ interface MenuRecord {
   permission?: string;
 }
 
+interface MenuApiRecord extends Omit<MenuRecord, 'status'> {
+  children?: MenuApiRecord[];
+  visible: boolean;
+}
+
 type MenuForm = Omit<MenuRecord, 'id'>;
 
 const toast = useToast();
@@ -51,8 +56,13 @@ const typeSeverity: Record<string, string> = {
 async function fetchData() {
   loading.value = true;
   try {
-    const res = await http.get<MenuRecord[]>({ url: '/menu/list' });
-    dataSource.value = res ?? [];
+    const res = await http.get<MenuApiRecord[]>({ url: '/menus/tree' });
+    const flatten = (items: MenuApiRecord[]): MenuRecord[] =>
+      items.flatMap(({ children = [], visible, ...item }) => [
+        { ...item, status: visible ? 'active' : 'inactive' },
+        ...flatten(children),
+      ]);
+    dataSource.value = flatten(res ?? []);
   } catch {
     toast.add({
       severity: 'error',
@@ -107,31 +117,36 @@ function openDialog(record?: MenuRecord) {
   dialogVisible.value = true;
 }
 
-function handleSave() {
+async function handleSave() {
   if (!form.value.name) {
     toast.add({ severity: 'warn', summary: '提示', detail: '请输入菜单名称' });
     return;
   }
-  if (editingRecord.value) {
-    const currentId = editingRecord.value.id;
-    const idx = dataSource.value.findIndex((r) => r.id === currentId);
-    if (idx !== -1) {
-      dataSource.value[idx] = { ...dataSource.value[idx], ...form.value };
+  const { status, ...values } = form.value;
+  const data = { ...values, visible: status === 'active' };
+  try {
+    if (editingRecord.value) {
+      await http.put({ data, url: `/menus/${editingRecord.value.id}` });
+      toast.add({ severity: 'success', summary: '成功', detail: '菜单已更新' });
+    } else {
+      await http.post({ data, url: '/menus' });
+      toast.add({ severity: 'success', summary: '成功', detail: '菜单已创建' });
     }
-    toast.add({ severity: 'success', summary: '成功', detail: '菜单已更新' });
-  } else {
-    const maxId = Math.max(...dataSource.value.map((r) => r.id), 0);
-    dataSource.value.push({ id: maxId + 1, ...form.value });
-    toast.add({ severity: 'success', summary: '成功', detail: '菜单已创建' });
+    dialogVisible.value = false;
+    fetchData();
+  } catch {
+    toast.add({ severity: 'error', summary: '错误', detail: '菜单保存失败' });
   }
-  dialogVisible.value = false;
 }
 
-function handleDelete(id: number) {
-  dataSource.value = dataSource.value.filter(
-    (r) => r.id !== id && r.parentId !== id,
-  );
-  toast.add({ severity: 'success', summary: '成功', detail: '已删除' });
+async function handleDelete(id: number) {
+  try {
+    await http.del({ url: `/menus/${id}` });
+    toast.add({ severity: 'success', summary: '成功', detail: '已删除' });
+    fetchData();
+  } catch {
+    toast.add({ severity: 'error', summary: '错误', detail: '删除失败' });
+  }
 }
 
 // Parent menu options for select

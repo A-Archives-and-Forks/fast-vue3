@@ -7,16 +7,5 @@ export default defineConfig(async () => {
     application: {
       uiResolvers: [ArcoResolver({ sideEffect: true })],
     },
-    vite: {
-      server: {
-        proxy: {
-          '/api': {
-            changeOrigin: true,
-            target: 'http://localhost:5320',
-            ws: true,
-          },
-        },
-      },
-    },
   };
 });

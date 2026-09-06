@@ -1,27 +1,29 @@
 <script setup lang="ts">
+import type { MenuItem, MenuType } from '@/api';
+
 import { onMounted, ref } from 'vue';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import { message } from 'ant-design-vue';
 
-interface MenuRecord {
-  id: number;
+const loading = ref(false);
+const dataSource = ref<MenuItem[]>([]);
+const modalVisible = ref(false);
+const editingRecord = ref<MenuItem | null>(null);
+
+interface MenuForm {
   parentId: number;
   name: string;
   path: string;
   icon: string;
   sort: number;
-  status: string;
-  type: string;
-  permission?: string;
+  status: 'active' | 'inactive';
+  type: MenuType;
+  permission: string;
+  visible: boolean;
 }
 
-const loading = ref(false);
-const dataSource = ref<MenuRecord[]>([]);
-const modalVisible = ref(false);
-const editingRecord = ref<MenuRecord | null>(null);
-
-const form = ref({
+const form = ref<MenuForm>({
   parentId: 0,
   name: '',
   path: '',
@@ -30,6 +32,7 @@ const form = ref({
   status: 'active',
   type: 'menu',
   permission: '',
+  visible: true,
 });
 
 const columns = [
@@ -39,20 +42,24 @@ const columns = [
   { title: '图标', dataIndex: 'icon', width: 140 },
   { title: '类型', dataIndex: 'type', width: 100 },
   { title: '排序', dataIndex: 'sort', width: 80 },
-  { title: '状态', dataIndex: 'status', width: 100 },
+  { title: '状态', dataIndex: 'visible', width: 100 },
   { title: '操作', key: 'action', width: 180 },
 ];
 
-const typeMap: Record<string, { color: string; label: string }> = {
+const typeMap: Record<MenuType, { color: string; label: string }> = {
   directory: { label: '目录', color: 'blue' },
   menu: { label: '菜单', color: 'green' },
   button: { label: '按钮', color: 'orange' },
 };
 
+function getTypeMeta(type: unknown) {
+  return typeMap[type as MenuType] ?? typeMap.menu;
+}
+
 async function fetchData() {
   loading.value = true;
   try {
-    const res = await http.get<MenuRecord[]>({ url: '/menu/list' });
+    const res = await api.menu.tree();
     dataSource.value = res ?? [];
   } catch {
     message.error('加载菜单数据失败');
@@ -61,10 +68,10 @@ async function fetchData() {
   }
 }
 
-function buildTree(list: MenuRecord[]) {
-  const map = new Map<number, MenuRecord & { children?: MenuRecord[] }>();
-  const tree: (MenuRecord & { children?: MenuRecord[] })[] = [];
-  list.forEach((item) => map.set(item.id, { ...item }));
+function buildTree(list: MenuItem[]): MenuItem[] {
+  const map = new Map<number, MenuItem>();
+  const tree: MenuItem[] = [];
+  list.forEach((item) => map.set(item.id, { ...item, children: undefined }));
   list.forEach((item) => {
     const node = map.get(item.id);
     if (!node) {
@@ -83,10 +90,20 @@ function buildTree(list: MenuRecord[]) {
   return tree;
 }
 
-function openModal(record?: MenuRecord) {
+function openModal(record?: MenuItem) {
   editingRecord.value = record ?? null;
   form.value = record
-    ? { ...record, permission: record.permission ?? '' }
+    ? {
+        parentId: record.parentId,
+        name: record.name,
+        path: record.path ?? '',
+        icon: record.icon ?? '',
+        sort: record.sort,
+        status: record.visible ? 'active' : 'inactive',
+        type: record.type,
+        permission: record.permission ?? '',
+        visible: record.visible,
+      }
     : {
         parentId: 0,
         name: '',
@@ -96,31 +113,45 @@ function openModal(record?: MenuRecord) {
         status: 'active',
         type: 'menu',
         permission: '',
+        visible: true,
       };
   modalVisible.value = true;
 }
 
-function handleSave() {
-  if (editingRecord.value) {
-    const currentId = editingRecord.value.id;
-    const idx = dataSource.value.findIndex((r) => r.id === currentId);
-    if (idx !== -1) {
-      dataSource.value[idx] = { ...dataSource.value[idx], ...form.value };
+async function handleSave() {
+  try {
+    const payload = {
+      parentId: form.value.parentId,
+      name: form.value.name,
+      path: form.value.path || undefined,
+      icon: form.value.icon || undefined,
+      sort: form.value.sort,
+      type: form.value.type,
+      permission: form.value.permission || undefined,
+      visible: form.value.visible,
+    };
+    if (editingRecord.value) {
+      await api.menu.update(editingRecord.value.id, payload);
+      message.success('菜单已更新');
+    } else {
+      await api.menu.create(payload);
+      message.success('菜单已创建');
     }
-    message.success('菜单已更新');
-  } else {
-    const maxId = Math.max(...dataSource.value.map((r) => r.id), 0);
-    dataSource.value.push({ id: maxId + 1, ...form.value });
-    message.success('菜单已创建');
+    modalVisible.value = false;
+    fetchData();
+  } catch {
+    message.error('保存菜单失败');
   }
-  modalVisible.value = false;
 }
 
-function handleDelete(id: number) {
-  dataSource.value = dataSource.value.filter(
-    (r) => r.id !== id && r.parentId !== id,
-  );
-  message.success('已删除');
+async function handleDelete(id: number) {
+  try {
+    await api.menu.delete(id);
+    message.success('已删除');
+    fetchData();
+  } catch {
+    message.error('删除菜单失败');
+  }
 }
 
 onMounted(fetchData);
@@ -144,8 +175,8 @@ onMounted(fetchData);
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'type'">
-              <ATag :color="typeMap[record.type]?.color">
-                {{ typeMap[record.type]?.label }}
+              <ATag :color="getTypeMeta(record.type).color">
+                {{ getTypeMeta(record.type).label }}
               </ATag>
             </template>
             <template v-if="column.dataIndex === 'status'">
@@ -158,7 +189,7 @@ onMounted(fetchData);
               <AButton
                 type="link"
                 size="small"
-                @click="openModal(record as MenuRecord)"
+                @click="openModal(record as MenuItem)"
               >
                 编辑
               </AButton>
@@ -166,7 +197,11 @@ onMounted(fetchData);
                 type="link"
                 size="small"
                 @click="
-                  openModal({ ...record, parentId: record.id, id: 0 } as any)
+                  openModal({
+                    ...record,
+                    parentId: record.id,
+                    id: 0,
+                  } as MenuItem)
                 "
               >
                 添加子项

@@ -1,22 +1,13 @@
 <script setup lang="ts">
+import type { OnlineUserItem } from '@/api';
+
 import { onMounted, ref } from 'vue';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import { message } from 'ant-design-vue';
 
-interface OnlineRecord {
-  id: number;
-  username: string;
-  realName: string;
-  department: string;
-  ip: string;
-  browser: string;
-  os: string;
-  loginAt: string;
-}
-
 const loading = ref(false);
-const dataSource = ref<OnlineRecord[]>([]);
+const dataSource = ref<OnlineUserItem[]>([]);
 
 const columns = [
   { title: 'ID', dataIndex: 'id', width: 60 },
@@ -33,10 +24,8 @@ const columns = [
 async function fetchData() {
   loading.value = true;
   try {
-    const res = await http.get<{ items: OnlineRecord[] }>({
-      url: '/monitor/online',
-    });
-    dataSource.value = res?.items ?? [];
+    const res = await api.monitor.online();
+    dataSource.value = res.items;
   } catch {
     message.error('加载在线用户失败');
   } finally {
@@ -44,7 +33,7 @@ async function fetchData() {
   }
 }
 
-function handleForceLogout(record: OnlineRecord) {
+function handleForceLogout(record: OnlineUserItem) {
   dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
   message.success(`已强制下线 ${record.username}`);
 }
@@ -78,7 +67,7 @@ onMounted(fetchData);
             <template v-if="column.key === 'action'">
               <APopconfirm
                 title="确定强制该用户下线？"
-                @confirm="handleForceLogout(record as OnlineRecord)"
+                @confirm="handleForceLogout(record as OnlineUserItem)"
               >
                 <AButton type="link" size="small" danger>强退</AButton>
               </APopconfirm>

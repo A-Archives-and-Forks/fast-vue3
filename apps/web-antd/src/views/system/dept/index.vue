@@ -1,31 +1,23 @@
 <script setup lang="ts">
+import type { DeptItem } from '@/api';
+
 import { onMounted, reactive, ref } from 'vue';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import { message } from 'ant-design-vue';
 
-interface DeptRecord {
-  id: number;
-  name: string;
-  leader: string;
-  order: number;
-  status: string;
-  createdAt: string;
-  children?: DeptRecord[];
-}
-
 const loading = ref(false);
-const dataSource = ref<DeptRecord[]>([]);
+const dataSource = ref<DeptItem[]>([]);
 
 const modalVisible = ref(false);
-const editingRecord = ref<DeptRecord | null>(null);
+const editingRecord = ref<DeptItem | null>(null);
 const parentId = ref<null | number>(null);
 
 const form = reactive({
   name: '',
   leader: '',
   order: 0,
-  status: 'active',
+  status: 'active' as DeptItem['status'],
 });
 
 const columns = [
@@ -40,7 +32,7 @@ const columns = [
 async function fetchData() {
   loading.value = true;
   try {
-    const res = await http.get<DeptRecord[]>({ url: '/dept/list' });
+    const res = await api.system.deptList();
     dataSource.value = res ?? [];
   } catch {
     message.error('加载部门列表失败');
@@ -49,7 +41,7 @@ async function fetchData() {
   }
 }
 
-function openModal(record?: DeptRecord, parent?: DeptRecord) {
+function openModal(record?: DeptItem, parent?: DeptItem) {
   editingRecord.value = record ?? null;
   parentId.value = parent?.id ?? null;
   if (record) {
@@ -74,7 +66,7 @@ function handleSave() {
   modalVisible.value = false;
 }
 
-function handleDelete(record: DeptRecord) {
+function handleDelete(record: DeptItem) {
   if (record.children?.length) {
     message.warning('请先删除子部门');
     return;
@@ -127,20 +119,20 @@ onMounted(fetchData);
               <AButton
                 type="link"
                 size="small"
-                @click="openModal(undefined, record as DeptRecord)"
+                @click="openModal(undefined, record as DeptItem)"
               >
                 新增
               </AButton>
               <AButton
                 type="link"
                 size="small"
-                @click="openModal(record as DeptRecord)"
+                @click="openModal(record as DeptItem)"
               >
                 编辑
               </AButton>
               <APopconfirm
                 title="确定删除该部门？"
-                @confirm="handleDelete(record as DeptRecord)"
+                @confirm="handleDelete(record as DeptItem)"
               >
                 <AButton type="link" size="small" danger>删除</AButton>
               </APopconfirm>

@@ -2,6 +2,7 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+import { api } from '@/api';
 import { useMessage } from '@idux/components/message';
 
 const router = useRouter();
@@ -34,10 +35,19 @@ async function handleRegister() {
     return;
   }
   loading.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 1200));
-  msgSuccess('注册成功，请登录');
-  loading.value = false;
-  router.push('/login');
+  try {
+    await api.auth.register({
+      email: form.email,
+      password: form.password,
+      username: form.username,
+    });
+    msgSuccess('注册成功，请登录');
+    router.push('/login');
+  } catch {
+    msgError('注册失败，用户名可能已存在');
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
 

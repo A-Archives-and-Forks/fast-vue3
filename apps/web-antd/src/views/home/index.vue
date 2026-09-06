@@ -1,14 +1,21 @@
 <script setup lang="ts">
+import type { DashboardStats } from '@/api';
+
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+
+import { api } from '@/api';
 
 const router = useRouter();
 
-const stats = [
-  { title: '总用户', value: 12_480, border: '#1890ff' },
-  { title: '今日访问', value: 3256, border: '#52c41a' },
-  { title: '活跃应用', value: 5, border: '#722ed1' },
-  { title: '系统正常率', value: 99.9, suffix: '%', border: '#fa8c16' },
-];
+const stats = ref<
+  { border: string; suffix?: string; title: string; value: number }[]
+>([
+  { title: '总用户', value: 0, border: '#1890ff' },
+  { title: '今日访问', value: 0, border: '#52c41a' },
+  { title: '活跃应用', value: 0, border: '#722ed1' },
+  { title: '系统正常率', value: 0, suffix: '%', border: '#fa8c16' },
+]);
 
 const actions = [
   { label: '仪表盘', icon: '📊', path: '/dashboard' },
@@ -31,6 +38,25 @@ const techTags = [
 function navigate(path: string) {
   router.push(path);
 }
+
+onMounted(async () => {
+  try {
+    const data: DashboardStats = await api.analytics.dashboardStats();
+    stats.value = [
+      { title: '总用户', value: data.totalUsers, border: '#1890ff' },
+      { title: '今日访问', value: data.todayVisits, border: '#52c41a' },
+      { title: '今日订单', value: data.todayOrders, border: '#722ed1' },
+      {
+        title: '系统正常率',
+        value: data.systemUptime,
+        suffix: '%',
+        border: '#fa8c16',
+      },
+    ];
+  } catch {
+    /* ignore: keep placeholder zeros on failure */
+  }
+});
 </script>
 
 <template>

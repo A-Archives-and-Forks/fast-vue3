@@ -1,17 +1,15 @@
 export function useResponseSuccess<T = any>(data: T, message = 'success') {
   return {
-    code: 200,
-    result: data,
+    code: 0,
+    data,
     message,
-    status: 'ok',
   };
 }
 
-export function useResponseError(message: string) {
+export function useResponseError(message: string, code = -1) {
   return {
-    code: -1,
-    result: null,
+    code,
+    data: null,
     message,
-    status: 'fail',
   };
 }

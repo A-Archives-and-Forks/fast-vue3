@@ -1,8 +1,17 @@
 <script setup lang="ts">
+import type { PaymentChannel, PaymentOrder } from '@/api';
+
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+import { isLoggedIn } from '@fast-vue3/utils';
+
+import { api } from '@/api';
 import Button from 'primevue/button';
 
-const plans = [
+const fallbackPlans = [
   {
+    id: 1,
     name: '开源版',
     price: '免费',
     unit: '',
@@ -18,6 +27,7 @@ const plans = [
     highlight: false,
   },
   {
+    id: 2,
     name: 'Pro 版',
     price: '¥199',
     unit: '/ 项目',
@@ -33,6 +43,7 @@ const plans = [
     highlight: true,
   },
   {
+    id: 4,
     name: '企业版',
     price: '定制',
     unit: '',
@@ -48,6 +59,67 @@ const plans = [
     highlight: false,
   },
 ];
+
+const plans = ref(fallbackPlans);
+const router = useRouter();
+const checkoutVisible = ref(false);
+const paying = ref(false);
+const selectedPlan = ref<(typeof fallbackPlans)[number] | null>(null);
+const channel = ref<PaymentChannel>('alipay');
+const order = ref<null | PaymentOrder>(null);
+const paymentError = ref('');
+
+function getPlanCta(planId: number) {
+  if (planId === 1) return '立即使用';
+  if (planId === 4) return '联系销售';
+  return '立即购买';
+}
+
+function handlePlanAction(plan: (typeof fallbackPlans)[number]) {
+  if (plan.id === 1) return router.push('/docs');
+  if (plan.id === 4) return router.push('/contact');
+  if (!isLoggedIn())
+    return router.push({ path: '/login', query: { redirect: '/pricing' } });
+  selectedPlan.value = plan;
+  order.value = null;
+  paymentError.value = '';
+  checkoutVisible.value = true;
+}
+
+async function handleCheckout() {
+  if (!selectedPlan.value) return;
+  paying.value = true;
+  paymentError.value = '';
+  try {
+    order.value = await api.portal.checkout({
+      channel: channel.value,
+      planId: selectedPlan.value.id,
+    });
+  } catch (error) {
+    paymentError.value =
+      error instanceof Error ? error.message : '创建订单失败';
+  } finally {
+    paying.value = false;
+  }
+}
+
+onMounted(async () => {
+  try {
+    const data = await api.portal.pricing();
+    plans.value = data.map((plan) => ({
+      id: plan.id,
+      name: plan.name,
+      price: plan.price,
+      unit: plan.period,
+      desc: plan.description,
+      features: plan.features,
+      cta: getPlanCta(plan.id),
+      highlight: plan.highlighted,
+    }));
+  } catch {
+    // 保留内置数据，确保离线预览仍可用。
+  }
+});
 </script>
 
 <template>
@@ -78,6 +150,7 @@ const plans = [
               :variant="plan.highlight ? undefined : 'outlined'"
               class="plan-cta"
               style="width: 100%"
+              @click="handlePlanAction(plan)"
             />
             <ul class="plan-features">
               <li v-for="f in plan.features" :key="f">
@@ -88,6 +161,61 @@ const plans = [
         </div>
       </div>
     </section>
+
+    <div
+      v-if="checkoutVisible"
+      class="checkout-mask"
+      @click.self="checkoutVisible = false"
+    >
+      <div class="checkout-panel">
+        <button
+          class="checkout-close"
+          type="button"
+          @click="checkoutVisible = false"
+        >
+          ×
+        </button>
+        <h2>确认订单</h2>
+        <template v-if="!order">
+          <p class="checkout-summary">
+            {{ selectedPlan?.name }} · {{ selectedPlan?.price }}
+            {{ selectedPlan?.unit }}
+          </p>
+          <div class="payment-channels">
+            <label
+              ><input v-model="channel" type="radio" value="alipay" />
+              支付宝</label
+            >
+            <label
+              ><input v-model="channel" type="radio" value="wechat" />
+              微信支付</label
+            >
+            <label
+              ><input v-model="channel" type="radio" value="card" />
+              银行卡</label
+            >
+          </div>
+          <p v-if="paymentError" class="payment-error">{{ paymentError }}</p>
+          <button
+            class="checkout-submit"
+            type="button"
+            :disabled="paying"
+            @click="handleCheckout"
+          >
+            {{ paying ? '正在创建订单…' : '确认并前往支付' }}
+          </button>
+        </template>
+        <div v-else class="order-created">
+          <div class="order-success">✓</div>
+          <h3>订单创建成功</h3>
+          <p>订单号：{{ order.orderNo }}</p>
+          <p>应付金额：¥{{ (order.amountCents / 100).toFixed(2) }}</p>
+          <p class="order-hint">
+            演示环境不会发起真实扣款。生产环境可用 checkoutUrl 对接支付网关。
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

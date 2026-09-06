@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import type { ArticleItem } from '@/api';
 import type { FormInst } from 'naive-ui';
 
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+import { api } from '@/api';
 import {
   NButton,
   NForm,
@@ -27,18 +29,18 @@ const formRef = ref<FormInst | null>(null);
 
 interface ArticleForm {
   title: string;
-  category: string;
+  categoryId: number | undefined;
   author: string;
   summary: string;
   cover: string;
   content: string;
-  status: string;
+  status: ArticleItem['status'];
   tags: string[];
 }
 
 const form = reactive<ArticleForm>({
   title: '',
-  category: '',
+  categoryId: undefined,
   author: '',
   summary: '',
   cover: '',
@@ -47,39 +49,62 @@ const form = reactive<ArticleForm>({
   tags: [],
 });
 
-const categoryOptions = ['产品动态', '技术分享', '团队博客', '公告'].map(
-  (c) => ({ label: c, value: c }),
-);
+const categoryOptions = ref<{ label: string; value: number }[]>([]);
 const tagOptions = ['Vue', 'TypeScript', 'Vite', '架构', '教程', '公告'].map(
   (t) => ({ label: t, value: t }),
 );
 
-function loadForEdit() {
-  if (!isEdit.value) return;
-  const cats = ['产品动态', '技术分享', '团队博客', '公告'];
-  form.title = `${cats[editId.value % cats.length]}示例文章标题 ${String(editId.value).padStart(2, '0')}`;
-  form.category = cats[editId.value % cats.length];
-  form.author = ['张三', '李四', '王五'][editId.value % 3];
-  form.summary = '这是一篇用于演示内容管理模块的示例文章。';
-  form.cover = '';
-  form.content = '在此撰写文章正文内容……';
-  form.status = editId.value % 3 === 0 ? 'draft' : 'published';
-  form.tags = ['Vue', '教程'].slice(0, (editId.value % 2) + 1);
+async function loadForEdit() {
+  try {
+    const categories = await api.content.categoryList();
+    categoryOptions.value = categories.map(({ id, name }) => ({
+      label: name,
+      value: id,
+    }));
+    if (!isEdit.value) return;
+    const article = await api.content.articleDetail(editId.value);
+    form.title = article.title;
+    form.categoryId = article.categoryId;
+    form.author = article.author;
+    form.summary = article.summary;
+    form.cover = article.cover;
+    form.content = article.content.join('\n\n');
+    form.status = article.status;
+    form.tags = [...article.tags];
+  } catch {
+    message.error('文章加载失败');
+  }
 }
 
 function handleSubmit() {
   if (!formRef.value) return;
-  formRef.value.validate((errors) => {
+  formRef.value.validate(async (errors) => {
     if (errors) {
       message.warning('请完善必填项');
       return;
     }
     submitting.value = true;
-    setTimeout(() => {
-      submitting.value = false;
+    try {
+      const payload = {
+        author: form.author,
+        categoryId: form.categoryId,
+        content: form.content.split('\n\n'),
+        cover: form.cover,
+        status: form.status,
+        summary: form.summary,
+        tags: form.tags,
+        title: form.title,
+      };
+      await (isEdit.value
+        ? api.content.articleUpdate(editId.value, payload)
+        : api.content.articleCreate(payload));
       message.success(isEdit.value ? '文章已更新' : '文章已创建');
       router.push('/content/article');
-    }, 600);
+    } catch {
+      message.error('保存失败');
+    } finally {
+      submitting.value = false;
+    }
   });
 }
 
@@ -122,7 +147,7 @@ onMounted(loadForEdit);
         </NFormItem>
         <NFormItem
           label="分类"
-          path="category"
+          path="categoryId"
           :rule="{
             required: true,
             message: '请选择分类',
@@ -130,7 +155,7 @@ onMounted(loadForEdit);
           }"
         >
           <NSelect
-            v-model:value="form.category"
+            v-model:value="form.categoryId"
             placeholder="请选择分类"
             :options="categoryOptions"
           />

@@ -64,6 +64,7 @@ async function loadCommonPlugins(
           routesFolder: 'src/views',
           dts: 'types/typed-router.d.ts',
           extensions: ['.vue'],
+          watch: !isBuild,
         }),
         viteVue({
           script: {
@@ -222,7 +223,7 @@ async function loadLibraryPlugins(
     ...commonPlugins,
     {
       condition: isBuild && !!dts,
-      plugins: () => [viteDtsPlugin({ logLevel: 'error' })],
+      plugins: () => [viteDtsPlugin()],
     },
   ]);
 }

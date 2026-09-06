@@ -2,6 +2,7 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+import { api } from '@/api';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
 import { useToast } from 'primevue/usetoast';
@@ -46,15 +47,29 @@ async function handleRegister() {
     return;
   }
   loading.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 1200));
-  toast.add({
-    severity: 'success',
-    summary: '成功',
-    detail: '注册成功，请登录',
-    life: 3000,
-  });
-  loading.value = false;
-  router.push('/login');
+  try {
+    await api.auth.register({
+      email: form.email,
+      password: form.password,
+      username: form.username,
+    });
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: '注册成功，请登录',
+      life: 3000,
+    });
+    router.push('/login');
+  } catch {
+    toast.add({
+      severity: 'error',
+      summary: '注册失败',
+      detail: '用户名可能已存在',
+      life: 3000,
+    });
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
 

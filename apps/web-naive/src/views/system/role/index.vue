@@ -102,14 +102,17 @@ async function fetchData() {
   loading.value = true;
   try {
     const res = await http.get<{ items: RoleRecord[]; total: number }>({
-      url: '/role/list',
+      url: '/roles',
       params: {
         page: currentPage.value,
         pageSize: pageSize.value,
         keyword: keyword.value,
       },
     });
-    dataSource.value = res?.items ?? [];
+    dataSource.value = (res?.items ?? []).map((item) => ({
+      ...item,
+      status: 'active',
+    }));
     total.value = res?.total ?? 0;
   } catch {
     message.error('加载角色列表失败');
@@ -146,35 +149,38 @@ function openModal(record?: RoleRecord) {
   showModal.value = true;
 }
 
-function handleSave() {
+async function handleSave() {
   if (!form.name || !form.code) {
     message.warning('请填写必要信息');
     return;
   }
-  if (editingRecord.value) {
-    const currentId = editingRecord.value.id;
-    const idx = dataSource.value.findIndex((r) => r.id === currentId);
-    if (idx !== -1)
-      dataSource.value[idx] = { ...dataSource.value[idx], ...form };
-    message.success('角色已更新');
-  } else {
-    const maxId = Math.max(...dataSource.value.map((r) => r.id), 0);
-    dataSource.value.unshift({
-      id: maxId + 1,
-      ...form,
-      permissions: [],
-      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 19),
-    });
-    total.value += 1;
-    message.success('角色已创建');
+  try {
+    const payload = { description: form.description, name: form.name };
+    if (editingRecord.value) {
+      await http.put({
+        data: payload,
+        url: `/roles/${editingRecord.value.id}`,
+      });
+      message.success('角色已更新');
+    } else {
+      await http.post({ data: { ...payload, code: form.code }, url: '/roles' });
+      message.success('角色已创建');
+    }
+    showModal.value = false;
+    fetchData();
+  } catch {
+    message.error('角色保存失败');
   }
-  showModal.value = false;
 }
 
-function handleDelete(record: RoleRecord) {
-  dataSource.value = dataSource.value.filter((r) => r.id !== record.id);
-  total.value -= 1;
-  message.success('已删除');
+async function handleDelete(record: RoleRecord) {
+  try {
+    await http.del({ url: `/roles/${record.id}` });
+    message.success('已删除');
+    fetchData();
+  } catch {
+    message.error('删除失败');
+  }
 }
 
 onMounted(fetchData);

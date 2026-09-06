@@ -10,11 +10,14 @@ import { getAuthHeader, getHttpStatusMessage } from '@fast-vue3/utils';
 
 import axios from 'axios';
 
+/**
+ * 后端统一响应信封：code === 0 表示成功。
+ * 同时兼容 Java 后端（fast-vue3-server）与 Nitro Mock 服务。
+ */
 export interface IResponse<T = any> {
-  code: number | string;
-  result: T;
+  code: number;
   message: string;
-  status: number | string;
+  data: T;
 }
 
 export interface RequestOptions {
@@ -45,10 +48,8 @@ export function createHttpClient(
 
   service.interceptors.response.use(
     (response: AxiosResponse) => {
-      if (response.status === 200) return response;
-      const data = response.data as IResponse;
-      const msg = data?.message || getHttpStatusMessage(response.status);
-      return Promise.reject(new Error(msg));
+      // HTTP 层错误（非 2xx）交给错误分支处理；此处直接放行 2xx
+      return response;
     },
     (error: AxiosError) => {
       const { response } = error;
@@ -72,7 +73,15 @@ export function createRequest(client: AxiosInstance) {
     return new Promise<T>((resolve, reject) => {
       client
         .request<any, AxiosResponse<IResponse<T>>>(config)
-        .then((res) => resolve(res.data.result))
+        .then((res) => {
+          const body = res.data;
+          // 业务层错误（HTTP 200 但 code !== 0）
+          if (body && typeof body.code === 'number' && body.code !== 0) {
+            reject(new Error(body.message || '请求失败'));
+            return;
+          }
+          resolve(body?.data as T);
+        })
         .catch(reject);
     });
   }

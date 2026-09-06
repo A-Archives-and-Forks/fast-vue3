@@ -64,6 +64,7 @@ function openDialog(index?: number) {
   editingIndex.value = index ?? -1;
   if (index !== undefined && index >= 0) {
     const r = data.value[index];
+    if (!r) return;
     form.name = r.name;
     form.code = r.code;
     form.description = r.description;
@@ -79,7 +80,9 @@ function openDialog(index?: number) {
 
 function handleSave() {
   if (editingIndex.value >= 0) {
-    Object.assign(data.value[editingIndex.value], { ...form });
+    const record = data.value[editingIndex.value];
+    if (!record) return;
+    Object.assign(record, { ...form });
     toast.add({ severity: 'success', summary: '角色已更新', life: 3000 });
   } else {
     const id = Math.max(...data.value.map((r) => r.id)) + 1;

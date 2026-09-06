@@ -1,24 +1,13 @@
 <script setup lang="ts">
+import type { OperationLogItem } from '@/api';
+
 import { computed, onMounted, ref } from 'vue';
 
-import { http } from '@/api/http';
+import { api } from '@/api';
 import { message } from 'ant-design-vue';
 
-interface OperationLog {
-  id: number;
-  username: string;
-  module: string;
-  action: string;
-  description: string;
-  ip: string;
-  method: string;
-  status: string;
-  duration: number;
-  createdAt: string;
-}
-
 const loading = ref(false);
-const dataSource = ref<OperationLog[]>([]);
+const dataSource = ref<OperationLogItem[]>([]);
 const total = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
@@ -50,17 +39,14 @@ const methodColor: Record<string, string> = {
 async function fetchData() {
   loading.value = true;
   try {
-    const res = await http.get<{ items: OperationLog[]; total: number }>({
-      url: '/log/operation',
-      params: {
-        page: currentPage.value,
-        pageSize: pageSize.value,
-        keyword: keyword.value,
-        module: moduleFilter.value,
-      },
+    const res = await api.log.operation({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      keyword: keyword.value || undefined,
+      module: moduleFilter.value || undefined,
     });
-    dataSource.value = res?.items ?? [];
-    total.value = res?.total ?? 0;
+    dataSource.value = res.items;
+    total.value = res.total;
   } catch {
     message.error('加载操作日志失败');
   } finally {
@@ -147,22 +133,39 @@ onMounted(fetchData);
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'method'">
-              <ATag :color="methodColor[record.method] || 'default'">
-                {{ record.method }}
+              <ATag
+                :color="
+                  methodColor[(record as OperationLogItem).method] || 'default'
+                "
+              >
+                {{ (record as OperationLogItem).method }}
               </ATag>
             </template>
             <template v-if="column.dataIndex === 'duration'">
               <span
                 :style="{
-                  color: record.duration > 300 ? '#f5222d' : '#52c41a',
+                  color:
+                    (record as OperationLogItem).duration > 300
+                      ? '#f5222d'
+                      : '#52c41a',
                 }"
               >
-                {{ record.duration }}ms
+                {{ (record as OperationLogItem).duration }}ms
               </span>
             </template>
             <template v-if="column.dataIndex === 'status'">
-              <ATag :color="record.status === 'success' ? 'green' : 'red'">
-                {{ record.status === 'success' ? '成功' : '失败' }}
+              <ATag
+                :color="
+                  (record as OperationLogItem).status === 'success'
+                    ? 'green'
+                    : 'red'
+                "
+              >
+                {{
+                  (record as OperationLogItem).status === 'success'
+                    ? '成功'
+                    : '失败'
+                }}
               </ATag>
             </template>
           </template>
