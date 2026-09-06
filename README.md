@@ -27,7 +27,7 @@ All 14 framework apps consume the same typed API contract. Admin apps include da
 | `site-antd` | <https://tobe-fe-dalao.github.io/fast-vue3/>          |
 | `web-antd`  | <https://tobe-fe-dalao.github.io/fast-vue3/web-antd/> |
 
-Pages is served from the `gh-pages` branch. Run `pnpm deploy:pages` to build both apps with the matching base paths and push the output to that branch. Use `--dry-run` to stage without pushing, `--force` when the branch history has to be replaced.
+Pages is served from the `gh-pages` branch. Pushing `main` runs the repository's original `peaceiris/actions-gh-pages` deployment model automatically. You can also run `pnpm deploy:pages` locally; use `--dry-run` to stage without pushing and `--force` when the branch history has to be replaced.
 
 Pages previews use an in-browser static mock by default. Sign in with `admin` / `123456`; changes reset when the page reloads. To use a real service, deploy with `VITE_STATIC_MOCK=false` and set `VITE_APP_API_BASEURL`.
 

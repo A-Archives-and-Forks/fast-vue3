@@ -1,0 +1,65 @@
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build site-antd
+        run: pnpm build:site-antd
+        env:
+          VITE_BASE_URL: /fast-vue3/
+          VITE_STATIC_MOCK: 'true'
+
+      - name: Build web-antd
+        run: pnpm build:web-antd
+        env:
+          VITE_BASE_URL: /fast-vue3/web-antd/
+          VITE_STATIC_MOCK: 'true'
+
+      - name: Assemble Pages branch
+        run: |
+          mkdir -p pages/web-antd
+          cp -R apps/site-antd/dist/. pages/
+          cp -R apps/web-antd/dist/. pages/web-antd/
+          cp pages/index.html pages/404.html
+          touch pages/.nojekyll
+
+      # Keep the repository's original Pages model: publish static files to
+      # the gh-pages branch instead of using actions/deploy-pages.
+      - name: Publish gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./pages
+          commit_message: '自动部署 ${{ github.sha }}'
