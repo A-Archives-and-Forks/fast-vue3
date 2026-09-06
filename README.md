@@ -22,14 +22,14 @@ All 14 framework apps consume the same typed API contract. Admin apps include da
 
 ## Preview
 
-Two static previews are published to GitHub Pages on every push to `main`:
-
 | App         | URL                                                   |
 | ----------- | ----------------------------------------------------- |
 | `site-antd` | <https://tobe-fe-dalao.github.io/fast-vue3/>          |
 | `web-antd`  | <https://tobe-fe-dalao.github.io/fast-vue3/web-antd/> |
 
-`web-antd` is a static preview: it opens without a backend, but sign-in and data pages need a reachable API. Set the repository variable `VITE_APP_API_BASEURL` to point the preview at a deployed `backend-mock` or `fast-vue3-server` instance.
+Pages is served from the `gh-pages` branch. Run `pnpm deploy:pages` to build both apps with the matching base paths and push the output to that branch. Use `--dry-run` to stage without pushing, `--force` when the branch history has to be replaced.
+
+`web-antd` is a static preview: it opens without a backend, but sign-in and data pages need a reachable API. Set `VITE_APP_API_BASEURL` before deploying to point the preview at a deployed `backend-mock` or `fast-vue3-server` instance.
 
 ## Repository layout
 

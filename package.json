@@ -26,6 +26,7 @@
     "clean": "node ./scripts/clean.mjs",
     "commit": "czg",
     "create-app": "vsh create-app",
+    "deploy:pages": "node ./scripts/deploy-pages.mjs",
     "dev": "turbo-run dev",
     "dev:backend-mock": "pnpm -F @fast-vue3/backend-mock run start",
     "dev:mock": "cross-env VITE_DEV_BACKEND=mock turbo-run dev",

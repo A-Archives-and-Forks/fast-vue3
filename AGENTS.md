@@ -33,7 +33,14 @@ This repository is a Vue 3 + TypeScript monorepo for building the same admin/sit
 - Check lint/format with `pnpm lint`.
 - Auto-fix lint/format issues with `pnpm format`.
 - Typecheck the workspace with `pnpm typecheck`.
+- Publish the static previews with `pnpm deploy:pages`.
 - Create a new application with `pnpm create-app`.
+
+## GitHub Pages Previews
+
+Pages is served from the `gh-pages` branch, not from GitHub Actions, so publishing is a local step. `scripts/deploy-pages.mjs` builds `site-antd` with `VITE_BASE_URL=/fast-vue3/` and `web-antd` with `VITE_BASE_URL=/fast-vue3/web-antd/`, copies both outputs plus a `404.html` SPA fallback into a `gh-pages` worktree, and pushes it.
+
+The build base controls both the asset URLs and the router history base, so any new app added to the preview must set `VITE_BASE_URL` to the path it will be served from.
 
 ## Create App Behavior
 
