@@ -36,4 +36,6 @@ export function createApi(http: RequestClient) {
 
 export type Api = ReturnType<typeof createApi>;
 
+export { createStaticMockApi } from './static-mock';
+
 export * from './types';

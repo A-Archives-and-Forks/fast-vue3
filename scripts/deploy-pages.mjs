@@ -15,8 +15,8 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import fs from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const REPO_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -39,19 +39,42 @@ function parseArgs(argv) {
   const positional = [];
 
   for (const arg of argv) {
+    if (arg === '--') continue;
     if (!arg.startsWith('--')) {
       positional.push(arg);
       continue;
     }
     const [key, inlineValue] = arg.slice(2).split('=');
     const value = inlineValue ?? true;
-    if (key === 'dry-run') options.dryRun = true;
-    else if (key === 'force') options.force = true;
-    else if (key === 'skip-build') options.skipBuild = true;
-    else if (key === 'branch') options.branch = String(value);
-    else if (key === 'remote') options.remote = String(value);
-    else if (key === 'message') options.message = String(value);
-    else throw new Error(`Unknown option: --${key}`);
+    switch (key) {
+      case 'branch': {
+        options.branch = String(value);
+        break;
+      }
+      case 'dry-run': {
+        options.dryRun = true;
+        break;
+      }
+      case 'force': {
+        options.force = true;
+        break;
+      }
+      case 'message': {
+        options.message = String(value);
+        break;
+      }
+      case 'remote': {
+        options.remote = String(value);
+        break;
+      }
+      case 'skip-build': {
+        options.skipBuild = true;
+        break;
+      }
+      default: {
+        throw new Error(`Unknown option: --${key}`);
+      }
+    }
   }
 
   return options;
@@ -90,6 +113,7 @@ function buildApp(appName, baseUrl) {
       ...process.env,
       VITE_APP_API_BASEURL: process.env.VITE_APP_API_BASEURL ?? '/api/v1',
       VITE_BASE_URL: baseUrl,
+      VITE_STATIC_MOCK: process.env.VITE_STATIC_MOCK ?? 'true',
     },
     stdio: 'inherit',
   });
@@ -103,7 +127,8 @@ function buildApp(appName, baseUrl) {
 
 /** Remove a leftover worktree directory from a previous run. */
 async function resetWorktreeDir() {
-  if (!existsSync(WORKTREE_DIR)) return;
+  // Clear registrations whose worktree directory was removed by an aborted run.
+  run('git', ['worktree', 'prune']);
 
   const listed = run('git', ['worktree', 'list', '--porcelain']);
   if (listed.includes(WORKTREE_DIR)) {

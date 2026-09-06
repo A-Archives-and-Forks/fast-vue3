@@ -31,7 +31,7 @@
 
 Pages 由 `gh-pages` 分支提供。执行 `pnpm deploy:pages` 会用对应的 base 构建两个应用，并把产物推送到该分支。`--dry-run` 只暂存不推送，需要覆盖分支历史时加 `--force`。
 
-`web-antd` 只是静态预览：页面可以打开，但登录和数据接口需要可用的后端。部署前设置 `VITE_APP_API_BASEURL`，指向已部署的 `backend-mock` 或 `fast-vue3-server` 即可。
+Pages 预览默认启用浏览器内静态 Mock，登录账号为 `admin` / `123456`，数据修改会在刷新页面后重置。若要连接真实服务，部署时设置 `VITE_STATIC_MOCK=false` 和 `VITE_APP_API_BASEURL`。
 
 ---
 
