@@ -45,6 +45,10 @@ const collapsed = ref(false);
 const selectedKeys = computed(() => [route.path]);
 const openKeys = ref<string[]>([]);
 
+function handleOpenChange(keys: Array<number | string>) {
+  openKeys.value = keys.map(String);
+}
+
 // Auto-open submenu based on current route
 watch(
   () => route.path,
@@ -200,11 +204,7 @@ async function handleLogout() {
           overflowY: 'auto',
         }"
         @click="(e: any) => router.push(e.key)"
-        @open-change="
-          (keys) => {
-            openKeys = keys as string[];
-          }
-        "
+        @open-change="handleOpenChange"
       >
         <AMenuItem key="/home">
           <template #icon> <HomeOutlined /> </template>首页
