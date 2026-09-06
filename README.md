@@ -20,6 +20,17 @@ Documentation: <https://tobe-fe-dalao.github.io/fast-vue3-site/> · [Spring Boot
 
 All 14 framework apps consume the same typed API contract. Admin apps include dashboards, users, roles, menus, content, logs, configuration, and monitoring. Site apps include home, product, pricing, FAQ, blog, authentication, and contact pages.
 
+## Preview
+
+Two static previews are published to GitHub Pages on every push to `main`:
+
+| App         | URL                                                   |
+| ----------- | ----------------------------------------------------- |
+| `site-antd` | <https://tobe-fe-dalao.github.io/fast-vue3/>          |
+| `web-antd`  | <https://tobe-fe-dalao.github.io/fast-vue3/web-antd/> |
+
+`web-antd` is a static preview: it opens without a backend, but sign-in and data pages need a reachable API. Set the repository variable `VITE_APP_API_BASEURL` to point the preview at a deployed `backend-mock` or `fast-vue3-server` instance.
+
 ## Repository layout
 
 ```text
