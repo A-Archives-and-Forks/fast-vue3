@@ -251,14 +251,14 @@ const seedCategories: CategoryItem[] = [
 const seedArticles: ArticleItem[] = [
   {
     id: 1,
-    title: 'Fast Vue3 多应用预览正式上线',
+    title: 'Fast Vue3 多应用能力介绍',
     author: 'Fast Vue3 Team',
     category: '产品动态',
     categoryId: 1,
-    tags: ['发布', 'GitHub Pages'],
+    tags: ['发布', '多应用'],
     cover: '',
-    summary: '同一个 GitHub Pages 站点同时预览门户与管理后台。',
-    content: ['门户应用部署在项目根路径。', '管理后台部署在子路径。'],
+    summary: '门户与管理后台共享同一套工程能力。',
+    content: ['门户应用展示产品内容。', '管理后台提供业务管理能力。'],
     status: 'published',
     date: '2026-09-06 10:00:00',
   },
@@ -329,8 +329,8 @@ const seedFaqs = [
   {
     id: 3,
     category: '部署',
-    question: '这个预览需要独立后端吗？',
-    answer: '不需要，GitHub Pages 预览使用浏览器内静态 Mock。',
+    question: '静态 Mock 模式需要独立后端吗？',
+    answer: '浏览器内静态 Mock 模式不需要独立后端。',
   },
 ];
 
@@ -444,12 +444,12 @@ const configs: ConfigItem[] = [
 const notices: NoticeItem[] = [
   {
     id: 1,
-    title: 'GitHub Pages 预览上线',
+    title: '多应用演示上线',
     type: '公告',
     status: 'active',
     author: '管理员',
     createdAt: '2026-09-06 10:00:00',
-    content: '门户站点与后台管理应用已支持在线预览。',
+    content: '门户站点与后台管理应用均可使用静态 Mock 模式体验。',
   },
   {
     id: 2,
@@ -853,7 +853,7 @@ export function createStaticMockApi(): Api {
       },
       server: () =>
         resolved({
-          cpu: { usage: 42.6, cores: 8, model: 'GitHub Pages Mock' },
+          cpu: { usage: 42.6, cores: 8, model: 'Browser Mock' },
           memory: { total: '16 GB', used: '8.2 GB', usage: 51.2 },
           disk: { total: '100 GB', used: '42 GB', usage: 42 },
           runtime: {

@@ -22,19 +22,6 @@
 
 14 个框架应用共享同一份 API 契约。后台覆盖仪表盘、用户、角色、菜单、内容、日志、系统配置和监控；门户覆盖首页、博客、产品、价格、FAQ、登录和联系表单。
 
-## 🔗 在线预览
-
-| 应用        | 地址                                                  |
-| ----------- | ----------------------------------------------------- |
-| `site-antd` | <https://tobe-fe-dalao.github.io/fast-vue3/>          |
-| `web-antd`  | <https://tobe-fe-dalao.github.io/fast-vue3/web-antd/> |
-
-Pages 由 `gh-pages` 分支提供。推送 `main` 时，会由 `deploy` 工作流按仓库原有的 `peaceiris/actions-gh-pages` 方式自动发布。也可以执行 `pnpm deploy:pages` 本地发布；`--dry-run` 只暂存不推送，需要覆盖分支历史时加 `--force`。
-
-Pages 预览默认启用浏览器内静态 Mock，登录账号为 `admin` / `123456`，数据修改会在刷新页面后重置。若要连接真实服务，部署时设置 `VITE_STATIC_MOCK=false` 和 `VITE_APP_API_BASEURL`。
-
----
-
 ## 🏗️ 工程架构
 
 ```

@@ -77,7 +77,7 @@ const routes = [
 ];
 
 export const router = createRouter({
-  // GitHub Pages 部署在子路径下，base 必须跟随 vite 的 base（VITE_BASE_URL）
+  // Use Vite's base for deployments under a subpath.
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
   scrollBehavior: () => ({ top: 0 }),
