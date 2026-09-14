@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { useUserStore } from '@fast-vue3/stores';
 
 import { FullscreenIcon, NotificationIcon } from 'tdesign-icons-vue-next';

@@ -1,12 +1,24 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { api } from '@/api';
 
 const form = reactive({ name: '', email: '', message: '' });
 const sent = ref(false);
+const submitting = ref(false);
+const error = ref('');
 
-function handleSubmit() {
+async function handleSubmit() {
   if (!form.name || !form.email || !form.message) return;
-  sent.value = true;
+  submitting.value = true;
+  error.value = '';
+  try {
+    const result = await api.portal.contact({ ...form });
+    if (!result.accepted) throw new Error('Message was not accepted');
+    sent.value = true;
+  } catch {
+    error.value = '发送失败，请稍后重试';
+  } finally {
+    submitting.value = false;
+  }
 }
 </script>
 
@@ -43,8 +55,8 @@ function handleSubmit() {
       <div class="form-side">
         <div v-if="sent" class="success-msg">
           <span>&#10003;</span>
-          <h2>发送成功</h2>
-          <p>感谢您的留言，我们会尽快回复！</p>
+          <h2>演示提交成功</h2>
+          <p>当前接口仅确认请求，留言不会被保存。</p>
         </div>
         <form v-else @submit.prevent="handleSubmit">
           <div class="field">
@@ -67,7 +79,10 @@ function handleSubmit() {
               placeholder="请输入您的留言…"
             ></textarea>
           </div>
-          <button type="submit" class="btn-submit">发送留言</button>
+          <p v-if="error" role="alert">{{ error }}</p>
+          <button type="submit" class="btn-submit" :disabled="submitting">
+            {{ submitting ? '发送中…' : '发送留言' }}
+          </button>
         </form>
       </div>
     </div>

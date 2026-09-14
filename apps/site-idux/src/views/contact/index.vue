@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
-
 import { api } from '@/api';
 import { useMessage } from '@idux/components/message';
 
@@ -48,7 +46,7 @@ async function handleSubmit() {
       name: form.name,
       message: `[${form.subject}] ${form.message}`,
     });
-    messageSuccess('提交成功，我们会尽快与你联系');
+    messageSuccess('演示提交成功；当前接口不会保存留言');
     form.name = '';
     form.email = '';
     form.subject = '';

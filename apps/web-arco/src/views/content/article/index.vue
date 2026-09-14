@@ -2,9 +2,6 @@
 import type { ArticleItem } from '@/api';
 import type { TableColumnData } from '@arco-design/web-vue';
 
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-
 import { api } from '@/api';
 import { Message } from '@arco-design/web-vue';
 import { IconDelete, IconEdit, IconPlus } from '@arco-design/web-vue/es/icon';

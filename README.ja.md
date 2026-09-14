@@ -65,18 +65,19 @@ pnpm dev:site-antd
 
 他の UI は `antd` を `arco`、`ele`、`idux`、`naive`、`primevue`、`tdesign` に置き換えます。Mock のアカウントは `admin / 123456` です。
 
+`pnpm dev:mock` は選択したフロントエンド用に Nitro Mock を起動します。Mock API のみをポート 5320 で起動する場合は `pnpm dev:mock:api` を使用します。Mock は Spring Boot を呼び出しません。
+
 ## Spring Boot バックエンドと連携
 
 ローカルに Java がなくても、Docker Desktop または OrbStack で PostgreSQL、Redis、API をまとめて起動できます。どちらも同じ Docker Compose CLI を利用します。
 
 ```bash
-cd /Users/fong/Workspace/personal/frontend/vue/fast-vue3/fast-vue3-server
-cp .env.example .env # 初回のみ
-docker compose --profile app up -d --build
-docker compose ps
+pnpm dev:server:api
 ```
 
-JDK 21 をローカルで使う場合は、`docker compose up -d` で PostgreSQL と Redis のみを起動し、続けて `./mvnw spring-boot:run` を実行します。
+このコマンドは隣接する `fast-vue3-server` で Docker Compose を実行します。`pnpm dev:server` は選択したフロントエンドだけを起動し、Nitro Mock や Java サービスは起動しません。
+
+JDK 21 をローカルで使う場合は、隣接する `fast-vue3-server` ディレクトリで `docker compose up -d` を実行して PostgreSQL と Redis を起動し、続けて `./mvnw spring-boot:run` を実行します。
 
 2 つ目のターミナルでフロントエンドを起動します。
 

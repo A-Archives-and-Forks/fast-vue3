@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { api } from '@/api';
 
 const router = useRouter();
 
@@ -27,9 +27,35 @@ const techStack = [
   { label: 'Pinia 3', severity: 'danger' },
   { label: 'Vue Router 4', severity: 'success' },
 ];
+const displayedStats = ref(quickStats);
+const loadError = ref('');
+
+onMounted(async () => {
+  try {
+    const data = await api.analytics.dashboardStats();
+    const values = [
+      data.totalUsers,
+      data.todayVisits,
+      data.activeUsers,
+      data.systemUptime,
+    ];
+    const labels = ['总用户', '今日访问', '活跃用户', '系统正常率'];
+    displayedStats.value = quickStats.map((item, index) => ({
+      ...item,
+      label: labels[index] ?? '统计',
+      value:
+        index === 3
+          ? `${values[index]}%`
+          : (values[index] ?? 0).toLocaleString(),
+    }));
+  } catch {
+    loadError.value = '首页统计暂时无法更新，当前显示内置示例';
+  }
+});
 </script>
 
 <template>
+  <p v-if="loadError" role="alert">{{ loadError }}</p>
   <div style="padding: 24px; margin-bottom: 24px">
     <!-- Welcome Section -->
     <h2 style="margin-bottom: 8px">欢迎回来</h2>
@@ -48,7 +74,7 @@ const techStack = [
       "
     >
       <Card
-        v-for="stat in quickStats"
+        v-for="stat in displayedStats"
         :key="stat.label"
         style="border-left: 4px solid"
         :style="{ borderLeftColor: stat.color }"

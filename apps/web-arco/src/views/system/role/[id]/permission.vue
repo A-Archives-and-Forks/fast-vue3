@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { PermissionItem } from '@/api';
 
-import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { api } from '@/api';
 import { Message } from '@arco-design/web-vue';
 import { IconArrowLeft, IconSave } from '@arco-design/web-vue/es/icon';

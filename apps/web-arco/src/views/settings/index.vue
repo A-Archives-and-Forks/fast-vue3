@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { reactive } from 'vue';
-
 import { Message } from '@arco-design/web-vue';
 
 const form = reactive({

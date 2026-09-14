@@ -2,9 +2,6 @@
 import type { ArticleItem } from '@/api';
 import type { FormInstanceFunctions, FormRules } from 'tdesign-vue-next';
 
-import { computed, onMounted, reactive, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { api } from '@/api';
 import { ChevronLeftIcon } from 'tdesign-icons-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';

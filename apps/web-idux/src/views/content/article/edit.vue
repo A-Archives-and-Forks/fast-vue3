@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { ArticleItem } from '@/api';
 
-import { computed, onMounted, reactive, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { api } from '@/api';
 import { useMessage } from '@idux/components/message';
 

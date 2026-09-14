@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { setRefreshToken, setToken } from '@fast-vue3/utils';
 
 import { api } from '@/api';

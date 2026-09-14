@@ -1,5 +1,3 @@
-import { createApp } from 'vue';
-
 import '@fast-vue3/styles/global';
 import '@fast-vue3/styles/reset';
 import '@fast-vue3/styles/site';
@@ -11,12 +9,14 @@ import ToastService from 'primevue/toastservice';
 
 import App from './App.vue';
 import { vReveal } from './composables/reveal';
+import zhCN from './locale/zh-CN';
 import { router } from './router';
 
 import 'primeicons/primeicons.css';
 
 const app = createApp(App);
 app.use(PrimeVue, {
+  locale: zhCN,
   theme: {
     preset: Aura,
     options: { darkModeSelector: '.dark' },

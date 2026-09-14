@@ -2,9 +2,6 @@
 import type { ArticleItem } from '@/api';
 import type { FormInstance } from 'element-plus';
 
-import { computed, onMounted, reactive, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { api } from '@/api';
 import { ArrowLeft } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';

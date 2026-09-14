@@ -2,8 +2,6 @@
 import type { CategoryItem } from '@/api';
 import type { FormInstance } from 'ant-design-vue';
 
-import { onMounted, reactive, ref } from 'vue';
-
 import { api } from '@/api';
 import {
   DeleteOutlined,

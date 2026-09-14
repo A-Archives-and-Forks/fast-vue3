@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
-
 import { api } from '@/api';
 import { MessagePlugin } from 'tdesign-vue-next';
 
@@ -85,7 +82,7 @@ async function handleRegister() {
                 :rules="[
                   {
                     required: true,
-                    type: 'email',
+                    email: true,
                     message: '请输入有效邮箱',
                   },
                 ]"

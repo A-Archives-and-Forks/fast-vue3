@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { reactive } from 'vue';
-
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import InputSwitch from 'primevue/inputswitch';

@@ -121,7 +121,8 @@ app.use(IduxComponents);
 function sortScripts(scripts: Record<string, string>): Record<string, string> {
   const sorted: Record<string, string> = {};
   for (const key of Object.keys(scripts).toSorted()) {
-    sorted[key] = scripts[key];
+    const value = scripts[key];
+    if (value !== undefined) sorted[key] = value;
   }
   return sorted;
 }

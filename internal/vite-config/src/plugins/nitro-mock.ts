@@ -47,8 +47,9 @@ export const viteNitroMockPlugin = ({
       // 端口可能被上一次异常退出的进程占用。此时静默跳过会让所有 /api 请求失败，
       // 因此顺延取一个空闲端口，并把真实端口同步给代理。
       const availablePort = await getPort({
-        port,
-        portRange: [port, port + 50],
+        port: Array.from({ length: 51 }, (_, offset) => port + offset).filter(
+          (candidate) => candidate <= 65_535,
+        ),
       });
       if (availablePort !== port) {
         consola.warn(

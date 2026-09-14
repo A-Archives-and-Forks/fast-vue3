@@ -1,5 +1,3 @@
-import { createApp } from 'vue';
-
 import '@fast-vue3/styles/global';
 import '@fast-vue3/styles/reset';
 import '@fast-vue3/styles/site';

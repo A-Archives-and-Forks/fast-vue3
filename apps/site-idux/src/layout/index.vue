@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
-
 import { IxDivider } from '@idux/components/divider';
 import { IxTag } from '@idux/components/tag';
 

@@ -2,9 +2,6 @@
 import type { ArticleItem } from '@/api';
 import type { FormInstance } from 'ant-design-vue';
 
-import { computed, onMounted, reactive, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { api } from '@/api';
 import { ArrowLeftOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';

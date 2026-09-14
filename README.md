@@ -84,18 +84,19 @@ pnpm dev:site-tdesign
 
 Mock credentials: `admin / 123456`.
 
+`pnpm dev:mock` starts the selected frontend with its own Nitro Mock. To run only the standalone Mock API on port 5320, use `pnpm dev:mock:api` (`pnpm dev:backend-mock` is an alias). The Mock does not call the Spring Boot service.
+
 ## Development with the Spring Boot backend
 
 Without installing Java locally, start PostgreSQL, Redis, and the API server with Docker Desktop or OrbStack (both provide the same Docker Compose CLI):
 
 ```bash
-cd /Users/fong/Workspace/personal/frontend/vue/fast-vue3/fast-vue3-server
-cp .env.example .env # first run only
-docker compose --profile app up -d --build
-docker compose ps
+pnpm dev:server:api
 ```
 
-For local JDK 21 development, run `docker compose up -d` for PostgreSQL and Redis, then `./mvnw spring-boot:run`.
+This command runs Docker Compose from the sibling `fast-vue3-server` repository. `pnpm dev:server` starts only the selected frontend in server mode; it does not start or use Nitro Mock.
+
+For local JDK 21 development, run `docker compose up -d` for PostgreSQL and Redis, then `./mvnw spring-boot:run`, both from the sibling `fast-vue3-server` directory.
 
 Then start any frontend in server mode:
 

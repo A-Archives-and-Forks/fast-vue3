@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { api } from '@/api';
 
 const router = useRouter();
 
@@ -27,9 +27,35 @@ const techTags = [
   { label: 'Pinia 3', color: 'orange' },
   { label: 'Vue Router 4', color: 'cyan' },
 ];
+const displayedStats = ref(stats);
+const loadError = ref('');
+
+onMounted(async () => {
+  try {
+    const data = await api.analytics.dashboardStats();
+    const values = [
+      data.totalUsers,
+      data.todayVisits,
+      data.activeUsers,
+      data.systemUptime,
+    ];
+    const labels = ['总用户', '今日访问', '活跃用户', '系统正常率'];
+    displayedStats.value = stats.map((item, index) => ({
+      ...item,
+      label: labels[index] ?? '统计',
+      value:
+        index === 3
+          ? `${values[index]}%`
+          : (values[index] ?? 0).toLocaleString(),
+    }));
+  } catch {
+    loadError.value = '首页统计暂时无法更新，当前显示内置示例';
+  }
+});
 </script>
 
 <template>
+  <p v-if="loadError" role="alert">{{ loadError }}</p>
   <div style="padding: 24px; margin-bottom: 24px">
     <h2>欢迎回来</h2>
     <p class="text-gray-500">
@@ -38,7 +64,7 @@ const techTags = [
     <IxDivider />
 
     <IxRow :gutter="16" style="margin-bottom: 24px">
-      <IxCol v-for="stat in stats" :key="stat.label" :span="6">
+      <IxCol v-for="stat in displayedStats" :key="stat.label" :span="6">
         <IxCard :style="{ borderLeft: `4px solid ${stat.borderColor}` }">
           <div
             style="font-size: 28px; font-weight: bold"

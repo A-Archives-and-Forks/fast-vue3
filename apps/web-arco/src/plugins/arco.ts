@@ -1,10 +1,6 @@
 import type { App } from 'vue';
 
-import { watch } from 'vue';
-
 import { usePreferences } from '@fast-vue3/preferences';
-
-import { storeToRefs } from 'pinia';
 
 export function setupArco(_app: App) {
   // Arco Design 通过 unplugin-vue-components + ArcoResolver 自动按需引入

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { TableColumnData } from '@arco-design/web-vue';
 
-import { onMounted, reactive, ref } from 'vue';
-
 import { http } from '@/api/http';
 import { Message } from '@arco-design/web-vue';
 

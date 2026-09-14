@@ -1,34 +1,19 @@
 <script setup lang="ts">
-const posts = [
-  {
-    title: 'Fast Vue3 v2.0 发布',
-    summary:
-      '全新 Monorepo 架构重构，支持 7 大 UI 框架，引入 Turborepo 增量构建，开发体验大幅提升。',
-    date: '2025-01-15',
-    tag: 'Release',
-  },
-  {
-    title: '如何选择适合你的 UI 框架',
-    summary:
-      '从组件丰富度、TypeScript 支持、主题定制、社区活跃度等维度对比分析 7 大 Vue 3 UI 框架。',
-    date: '2025-01-10',
-    tag: 'Guide',
-  },
-  {
-    title: 'Monorepo 最佳实践',
-    summary:
-      '详解 pnpm workspace 配置、依赖管理策略、构建编排方案，以及在大型 Vue 项目中的落地经验。',
-    date: '2025-01-05',
-    tag: 'Architecture',
-  },
-  {
-    title: 'UnoCSS 与主题系统设计',
-    summary:
-      '基于 CSS Variables + UnoCSS 实现亮色/暗色主题切换，零运行时开销的动态主题方案。',
-    date: '2024-12-28',
-    tag: 'Style',
-  },
-];
+import type { BlogPost } from '@/api';
+
+import { api } from '@/api';
+
+const posts = ref<BlogPost[]>([]);
+const error = ref('');
+
+onMounted(async () => {
+  try {
+    const result = await api.portal.blogList({ page: 1, pageSize: 20 });
+    posts.value = result.items;
+  } catch {
+    error.value = '博客内容加载失败，请稍后重试';
+  }
+});
 </script>
 
 <template>
@@ -38,13 +23,14 @@ const posts = [
       <p>项目更新、技术分享与最佳实践</p>
     </div>
     <div class="post-list">
-      <article v-for="post in posts" :key="post.title" class="post-card">
+      <p v-if="error" role="alert">{{ error }}</p>
+      <article v-for="post in posts" :key="post.id" class="post-card">
         <div class="post-meta">
-          <span class="tag">{{ post.tag }}</span>
+          <span class="tag">{{ post.category }}</span>
           <span class="date">{{ post.date }}</span>
         </div>
         <h2>{{ post.title }}</h2>
-        <p>{{ post.summary }}</p>
+        <p>{{ post.excerpt }}</p>
       </article>
     </div>
     <div class="bottom-nav">

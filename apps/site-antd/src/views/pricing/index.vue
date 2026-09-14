@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { PaymentChannel, PaymentOrder } from '@/api';
 
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-
 import { isLoggedIn } from '@fast-vue3/utils';
 
 import { api } from '@/api';

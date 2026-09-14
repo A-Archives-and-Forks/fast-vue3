@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { StoredFile } from '@/api';
 
-import { ref } from 'vue';
-
 import { api } from '@/api';
 import { message } from 'ant-design-vue';
 

@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-
 import { usePreferences } from '@fast-vue3/preferences';
 
 import { theme } from 'ant-design-vue';
+import zhCN from 'ant-design-vue/es/locale/zh_CN';
 
 const prefs = usePreferences();
 
@@ -16,7 +15,7 @@ const antdTheme = computed(() => ({
 </script>
 
 <template>
-  <AConfigProvider :theme="antdTheme">
+  <AConfigProvider :locale="zhCN" :theme="antdTheme">
     <RouterView />
   </AConfigProvider>
 </template>

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-
 import { MessagePlugin } from 'tdesign-vue-next';
 
 const loading = ref(false);

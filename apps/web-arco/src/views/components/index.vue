@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { TableData } from '@arco-design/web-vue';
 
-import { ref } from 'vue';
-
 import { Message } from '@arco-design/web-vue';
 
 const loading = ref(false);

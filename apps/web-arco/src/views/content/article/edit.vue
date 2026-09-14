@@ -2,9 +2,6 @@
 import type { ArticleItem } from '@/api';
 import type { FormInstance } from '@arco-design/web-vue';
 
-import { computed, onMounted, reactive, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { api } from '@/api';
 import { Message } from '@arco-design/web-vue';
 import { IconArrowLeft } from '@arco-design/web-vue/es/icon';

@@ -33,17 +33,19 @@ pnpm dev:site-antd
 
 Mock 預設帳號為 `admin / 123456`。Mock API 預設位於 `http://localhost:5320`，瀏覽器仍統一請求 `/api/v1`。
 
+`pnpm dev:mock` 會為所選前端啟動 Nitro Mock。只啟動獨立的 Mock API 可使用 `pnpm dev:mock:api`；Mock 不會請求 Spring Boot。
+
 ## 與 Spring Boot 後端聯調
 
 不安裝 Java 也可以直接啟動完整後端：
 
 ```bash
-cd ../fast-vue3-server
-docker compose --profile app up -d --build
-docker compose ps
+pnpm dev:server:api
 ```
 
-OrbStack 提供相容的 `docker` CLI，因此使用相同指令即可。回到本專案：
+此指令在同級 `fast-vue3-server` 專案啟動 Docker Compose。`pnpm dev:server` 只啟動所選前端，不會啟動 Nitro Mock 或 Java 服務。
+
+OrbStack 提供相容的 `docker` CLI，因此使用相同指令即可。啟動前端：
 
 ```bash
 VITE_DEV_BACKEND=server pnpm dev:web-antd

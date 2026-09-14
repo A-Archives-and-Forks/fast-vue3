@@ -1,32 +1,31 @@
 <script setup lang="ts">
-const features = [
-  {
-    icon: '&#9889;',
-    title: 'Vite + Turborepo',
-    desc: '极速构建，monorepo 工程体系',
-  },
-  {
-    icon: '&#127912;',
-    title: '7 大 UI 框架',
-    desc: 'Antd / Element / Naive / Arco / TDesign / PrimeVue / iDux',
-  },
-  {
-    icon: '&#127769;',
-    title: '深色/亮色双主题',
-    desc: '基于 CSS Variables，一键切换',
-  },
-  { icon: '&#128241;', title: '响应式布局', desc: '完美适配桌面端和移动端' },
-  { icon: '&#128295;', title: 'TypeScript', desc: '完整类型安全，开箱即用' },
-  {
-    icon: '&#128230;',
-    title: '自动按需导入',
-    desc: 'unplugin-auto-import + Components',
-  },
-];
+import { api } from '@/api';
+
+const features = ref<{ desc: string; icon: string; title: string }[]>([]);
+const stats = ref<{ label: string; value: string }[]>([]);
+const error = ref('');
+
+onMounted(async () => {
+  try {
+    const [home, items] = await Promise.all([
+      api.portal.home(),
+      api.portal.features(),
+    ]);
+    stats.value = home.stats;
+    features.value = items.map((item, index) => ({
+      icon: ['⚡', '🎨', '🌗', '📱', '🔧', '📦'][index % 6] ?? '✨',
+      title: item.title,
+      desc: item.description,
+    }));
+  } catch {
+    error.value = '首页内容加载失败，请稍后重试';
+  }
+});
 </script>
 
 <template>
   <div>
+    <p v-if="error" role="alert">{{ error }}</p>
     <section class="hero">
       <h1>Fast Vue3</h1>
       <p>基于 Vite + Turborepo 的多 UI 框架 Monorepo 模板</p>
@@ -41,9 +40,17 @@ const features = [
       <h2>核心特性</h2>
       <div class="grid">
         <div v-for="f in features" :key="f.title" class="feature-card">
-          <span class="feature-icon" v-html="f.icon"></span>
+          <span class="feature-icon">{{ f.icon }}</span>
           <h3>{{ f.title }}</h3>
           <p>{{ f.desc }}</p>
+        </div>
+      </div>
+    </section>
+    <section v-if="stats.length > 0" class="features">
+      <div class="grid">
+        <div v-for="item in stats" :key="item.label" class="feature-card">
+          <h3>{{ item.value }}</h3>
+          <p>{{ item.label }}</p>
         </div>
       </div>
     </section>

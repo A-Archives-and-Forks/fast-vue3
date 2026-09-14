@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { ApprovalItem, DepartmentItem } from '@/api';
 
-import { computed, onMounted, reactive, ref } from 'vue';
-
 import { useUserStore } from '@fast-vue3/stores';
 
 import { api } from '@/api';

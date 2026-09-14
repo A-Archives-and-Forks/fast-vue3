@@ -926,9 +926,15 @@ importers:
       '@arco-design/web-vue':
         specifier: 'catalog:'
         version: 2.58.0(vue@3.5.34(typescript@6.0.3))
+      '@fast-vue3/api':
+        specifier: workspace:*
+        version: link:../../packages/effects/api
       '@fast-vue3/preferences':
         specifier: workspace:*
         version: link:../../packages/preferences
+      '@fast-vue3/request':
+        specifier: workspace:*
+        version: link:../../packages/effects/request
       '@fast-vue3/styles':
         specifier: workspace:*
         version: link:../../packages/styles

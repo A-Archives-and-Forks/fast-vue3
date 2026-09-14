@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
-
 import { api } from '@/api';
 import Button from 'primevue/button';
 import { useToast } from 'primevue/usetoast';
@@ -35,7 +33,7 @@ async function handleSubmit() {
     toast.add({
       severity: 'success',
       summary: '成功',
-      detail: '提交成功，我们会尽快与你联系',
+      detail: '演示提交成功；当前接口不会保存留言',
       life: 3000,
     });
     form.name = '';

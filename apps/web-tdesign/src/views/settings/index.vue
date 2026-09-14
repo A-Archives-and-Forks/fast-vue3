@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { reactive } from 'vue';
-
 import { MessagePlugin } from 'tdesign-vue-next';
 
 const form = reactive({

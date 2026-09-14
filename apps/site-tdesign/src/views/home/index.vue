@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { api } from '@/api';
 
 const router = useRouter();
 
@@ -77,12 +77,12 @@ const testimonials = [
 
 const techStack = [
   { name: 'Vue 3.5', tag: '渐进式框架', theme: 'success' },
-  { name: 'Vite 8', tag: '构建工具', theme: 'purple' },
+  { name: 'Vite 8', tag: '构建工具', theme: 'primary' },
   { name: 'TypeScript 6', tag: '类型系统', theme: 'primary' },
   { name: 'Pinia 3', tag: '状态管理', theme: 'warning' },
   { name: 'Vue Router 4', tag: '路由管理', theme: 'default' },
   { name: 'Tailwind CSS', tag: '原子化样式', theme: 'default' },
-];
+] as const;
 
 const faqs = [
   {
@@ -102,9 +102,45 @@ const faqs = [
     a: '文档中提供了目录结构说明与共享包接入指南，你可以按模块逐步将业务代码迁移到对应应用中。',
   },
 ];
+const shownStats = ref<typeof stats>(stats);
+const shownFeatures = ref<typeof features>(features);
+const shownTestimonials = ref<typeof testimonials>(testimonials);
+const shownFaqs = ref<typeof faqs>(faqs);
+const loadError = ref('');
+
+onMounted(async () => {
+  try {
+    const [home, featureItems, faqItems] = await Promise.all([
+      api.portal.home(),
+      api.portal.features(),
+      api.portal.faq(),
+    ]);
+    shownStats.value = home.stats.map((item, index) => ({
+      ...item,
+      icon: ['🎨', '🧩', '💎', '⚡'][index % 4] ?? '✨',
+    }));
+    shownFeatures.value = featureItems.map((item, index) => ({
+      icon: ['⚡', '🎨', '🌗', '📱', '🔧', '📦'][index % 6] ?? '✨',
+      title: item.title,
+      desc: item.description,
+    }));
+    shownTestimonials.value = home.testimonials.map((item, index) => ({
+      avatar: ['🧑‍💻', '👩‍💼', '👨‍🔬'][index % 3] ?? '👤',
+      name: item.name,
+      role: item.role,
+      quote: item.content,
+    }));
+    shownFaqs.value = faqItems
+      .slice(0, 4)
+      .map((item) => ({ q: item.question, a: item.answer }));
+  } catch {
+    loadError.value = '首页内容暂时无法更新，当前显示内置示例';
+  }
+});
 </script>
 
 <template>
+  <p v-if="loadError" role="alert" class="site-container">{{ loadError }}</p>
   <div class="home-page">
     <!-- Hero -->
     <section class="hero">
@@ -150,7 +186,7 @@ const faqs = [
       <div class="site-container site-container--narrow">
         <div class="site-grid" style="--site-grid-cols: 4">
           <div
-            v-for="(s, i) in stats"
+            v-for="(s, i) in shownStats"
             :key="s.label"
             v-reveal="i * 80"
             class="site-card stat-card"
@@ -174,7 +210,7 @@ const faqs = [
         </div>
         <div class="site-grid">
           <article
-            v-for="(f, i) in features"
+            v-for="(f, i) in shownFeatures"
             :key="f.title"
             v-reveal="(i % 3) * 100"
             class="site-card site-card--hoverable feature-card"
@@ -196,7 +232,7 @@ const faqs = [
         </div>
         <div class="site-grid">
           <figure
-            v-for="(t, i) in testimonials"
+            v-for="(t, i) in shownTestimonials"
             :key="t.name"
             v-reveal="i * 120"
             class="site-card testimonial-card"
@@ -267,7 +303,7 @@ const faqs = [
         <div v-reveal class="faq-panel">
           <t-collapse>
             <t-collapse-panel
-              v-for="item in faqs"
+              v-for="item in shownFaqs"
               :key="item.q"
               :header="item.q"
             >

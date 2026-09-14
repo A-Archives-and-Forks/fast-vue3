@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { api } from '@/api';
+
 const useCases = [
   {
     title: '企业后台管理',
@@ -64,14 +66,32 @@ const features = [
     icon: '🔗',
   },
 ];
+const shownFeatures = ref<typeof features>(features);
+const productSlogan = ref('Fast Vue3 提供完整的企业级前端解决方案');
+const loadError = ref('');
+
+onMounted(async () => {
+  try {
+    const product = await api.portal.product();
+    productSlogan.value = product.slogan;
+    shownFeatures.value = product.highlights.map((item, index) => ({
+      icon: ['🎨', '🔐', '🌍', '🎭', '⚡', '📝', '🗺️', '🔗'][index % 8] ?? '✨',
+      title: item.title,
+      desc: item.description,
+    }));
+  } catch {
+    loadError.value = '产品信息暂时无法更新，当前显示内置示例';
+  }
+});
 </script>
 
 <template>
+  <p v-if="loadError" role="alert" class="site-container">{{ loadError }}</p>
   <div>
     <section class="site-hero">
       <h1 class="site-hero-title">产品功能</h1>
       <p class="site-hero-desc">
-        Fast Vue3 提供完整的企业级前端解决方案， 涵盖从开发到部署的全流程工具链
+        {{ productSlogan }}
       </p>
     </section>
 
@@ -86,7 +106,7 @@ const features = [
         </div>
         <div class="site-grid" style="--site-grid-cols: 4">
           <article
-            v-for="(f, i) in features"
+            v-for="(f, i) in shownFeatures"
             :key="f.title"
             v-reveal="(i % 4) * 90"
             class="site-card site-card--hoverable feature-card"

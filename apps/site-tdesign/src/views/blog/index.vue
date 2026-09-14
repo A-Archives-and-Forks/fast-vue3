@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { BlogPost } from '@/api';
 
-import { computed, onMounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
-
 import { api } from '@/api';
 
 const router = useRouter();
@@ -40,9 +37,6 @@ const total = computed(() => filtered.value.length);
 
 function handleCategoryChange() {
   currentPage.value = 1;
-}
-function handlePageChange(page: number) {
-  currentPage.value = page;
 }
 function goDetail(post: BlogPost) {
   router.push(`/blog/${post.id}`);
@@ -111,7 +105,6 @@ function goDetail(post: BlogPost) {
             :page-size="pageSize"
             :total="total"
             :show-page-size="false"
-            @change="handlePageChange"
           />
         </div>
       </div>

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { DataOverview } from '@/api';
 
-import { onMounted, ref } from 'vue';
-
 import { api } from '@/api';
 import { DownloadOutlined } from '@ant-design/icons-vue';
 

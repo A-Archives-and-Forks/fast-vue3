@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import type { MenuOption } from 'naive-ui';
 
-import { computed, h, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { usePreferences } from '@fast-vue3/preferences';
 import { useUserStore } from '@fast-vue3/stores';
 
 import { NIcon, useMessage } from 'naive-ui';
-import { storeToRefs } from 'pinia';
 
 // Use dynamic import for fluent-system-icons if available, fallback to text
 const MenuFold20Filled: any = { render: () => h('span', '◀') };

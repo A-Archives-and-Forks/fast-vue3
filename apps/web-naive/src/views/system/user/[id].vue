@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { http } from '@/api/http';
 import {
   NAvatar,

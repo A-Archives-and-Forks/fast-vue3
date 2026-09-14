@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { ProjectItem } from '@/api';
 
-import { onMounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
-
 import { api } from '@/api';
 import { message } from 'ant-design-vue';
 

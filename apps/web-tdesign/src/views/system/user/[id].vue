@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { TagProps } from 'tdesign-vue-next';
 
-import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { http } from '@/api/http';
 import { ChevronLeftIcon } from 'tdesign-icons-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';

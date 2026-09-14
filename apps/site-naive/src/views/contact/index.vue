@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { FormInst } from 'naive-ui';
 
-import { reactive, ref } from 'vue';
-
 import { api } from '@/api';
 import { useMessage } from 'naive-ui';
 
@@ -37,7 +35,7 @@ async function handleSubmit() {
       name: form.name,
       message: `[${form.subject}] ${form.message}`,
     });
-    message.success('提交成功，我们会尽快与你联系');
+    message.success('演示提交成功；当前接口不会保存留言');
     formRef.value?.restoreValidation();
   } catch {
     message.error('提交失败，请稍后重试');

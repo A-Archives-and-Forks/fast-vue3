@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { TenantItem } from '@/api';
 
-import { onMounted, reactive, ref } from 'vue';
-
 import { api } from '@/api';
 import { message } from 'ant-design-vue';
 

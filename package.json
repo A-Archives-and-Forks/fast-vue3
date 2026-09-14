@@ -26,9 +26,10 @@
     "clean": "node ./scripts/clean.mjs",
     "commit": "czg",
     "create-app": "vsh create-app",
-    "dev": "turbo-run dev",
-    "dev:backend-mock": "pnpm -F @fast-vue3/backend-mock run start",
+    "dev": "pnpm dev:mock",
+    "dev:backend-mock": "pnpm dev:mock:api",
     "dev:mock": "cross-env VITE_DEV_BACKEND=mock turbo-run dev",
+    "dev:mock:api": "pnpm -F @fast-vue3/backend-mock run dev",
     "dev:site-antd": "pnpm -F @fast-vue3/site-antd run dev",
     "dev:site-arco": "pnpm -F @fast-vue3/site-arco run dev",
     "dev:site-ele": "pnpm -F @fast-vue3/site-ele run dev",
@@ -37,6 +38,7 @@
     "dev:site-primevue": "pnpm -F @fast-vue3/site-primevue run dev",
     "dev:site-tdesign": "pnpm -F @fast-vue3/site-tdesign run dev",
     "dev:server": "cross-env VITE_DEV_BACKEND=server turbo-run dev",
+    "dev:server:api": "docker compose -f ../fast-vue3-server/compose.yml --project-directory ../fast-vue3-server --profile app up -d --build",
     "dev:web-app": "pnpm -F @fast-vue3/web-app run dev",
     "dev:web-antd": "pnpm -F @fast-vue3/web-antd run dev",
     "dev:web-arco": "pnpm -F @fast-vue3/web-arco run dev",
@@ -51,7 +53,7 @@
     "preinstall": "npx only-allow pnpm",
     "reinstall": "pnpm clean --del-lock && pnpm install",
     "test": "pnpm -r --if-present run test",
-    "typecheck": "pnpm -r --if-present run type-check && turbo typecheck"
+    "typecheck": "node scripts/generate-auto-import-types.mjs && pnpm -r --if-present run type-check && turbo typecheck"
   },
   "devDependencies": {
     "@commitlint/cli": "catalog:",

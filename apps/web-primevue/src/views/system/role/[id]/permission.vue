@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { PermissionItem } from '@/api';
 
-import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { api } from '@/api';
 import Button from 'primevue/button';
 import Card from 'primevue/card';

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { api } from '@/api';
 import Button from 'primevue/button';
 
 const featureGroups = [
@@ -54,9 +55,26 @@ const whyItems = [
     desc: '业务逻辑与 UI 解耦，共享包统一管理，工程结构清晰，易于扩展。',
   },
 ];
+const shownFeatureGroups = ref<typeof featureGroups>(featureGroups);
+const loadError = ref('');
+
+onMounted(async () => {
+  try {
+    const features = await api.portal.features();
+    shownFeatureGroups.value = features.map((item, index) => ({
+      icon: ['⚡', '🎨', '🧩', '🌗', '📦', '🔒'][index % 6] ?? '✨',
+      title: item.title,
+      desc: item.description,
+      items: [],
+    }));
+  } catch {
+    loadError.value = '功能特性暂时无法更新，当前显示内置示例';
+  }
+});
 </script>
 
 <template>
+  <p v-if="loadError" role="alert" class="site-container">{{ loadError }}</p>
   <div>
     <section class="site-hero">
       <h1 class="site-hero-title">核心特性</h1>
@@ -68,7 +86,7 @@ const whyItems = [
       <div class="site-container">
         <div class="site-grid">
           <article
-            v-for="(f, i) in featureGroups"
+            v-for="(f, i) in shownFeatureGroups"
             :key="f.title"
             v-reveal="(i % 3) * 100"
             class="site-card site-card--hoverable feature-card"

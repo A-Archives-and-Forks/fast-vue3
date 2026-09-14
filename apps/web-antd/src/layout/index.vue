@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { NotificationItem } from '@/api';
 
-import { computed, onMounted, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { usePreferences } from '@fast-vue3/preferences';
 import { useUserStore } from '@fast-vue3/stores';
 
@@ -35,7 +32,6 @@ import {
   UserOutlined,
 } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
-import { storeToRefs } from 'pinia';
 
 const router = useRouter();
 const route = useRoute();

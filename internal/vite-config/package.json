@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "stub": "pnpm exec tsdown",
-    "build": "tsdown"
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "files": [
     "dist"

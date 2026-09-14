@@ -1,4 +1,19 @@
 <script setup lang="ts">
+import type { AboutInfo } from '@/api';
+
+import { api } from '@/api';
+
+const about = ref<AboutInfo | null>(null);
+const error = ref('');
+
+onMounted(async () => {
+  try {
+    about.value = await api.portal.about();
+  } catch {
+    error.value = '关于信息加载失败，请稍后重试';
+  }
+});
+
 const techItems = [
   { label: 'Vue', value: 'Vue 3.5 + Composition API' },
   { label: 'Build', value: 'Vite + Turborepo' },
@@ -11,12 +26,15 @@ const techItems = [
 
 <template>
   <div class="about-page">
+    <p v-if="error" role="alert">{{ error }}</p>
     <h1>关于项目</h1>
-    <p class="desc">
-      Fast Vue3 是一个基于 Vite + Turborepo 的多 UI 框架 Monorepo
-      模板项目，旨在为开发者提供开箱即用的前端工程化解决方案。同时集成 7 大主流
-      Admin UI 框架，支持后台管理和纯页面两种开发模式。
-    </p>
+    <p v-if="about" class="desc">{{ about.intro }}</p>
+    <div v-if="about" class="grid">
+      <div v-for="item in about.stats" :key="item.label" class="card">
+        <div class="value">{{ item.value }}</div>
+        <div class="label">{{ item.label }}</div>
+      </div>
+    </div>
     <h2>技术栈</h2>
     <div class="grid">
       <div v-for="item in techItems" :key="item.label" class="card">

@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-
 import { usePreferences } from '@fast-vue3/preferences';
 
-import { darkTheme, NConfigProvider } from 'naive-ui';
-import { storeToRefs } from 'pinia';
+import { darkTheme, dateZhCN, zhCN } from 'naive-ui';
 
 const prefs = usePreferences();
 const { isDark, preferences } = storeToRefs(prefs);
@@ -21,7 +18,12 @@ const naiveOverrides = computed(() => ({
 </script>
 
 <template>
-  <NConfigProvider :theme="naiveTheme" :theme-overrides="naiveOverrides">
+  <NConfigProvider
+    :locale="zhCN"
+    :date-locale="dateZhCN"
+    :theme="naiveTheme"
+    :theme-overrides="naiveOverrides"
+  >
     <RouterView />
   </NConfigProvider>
 </template>

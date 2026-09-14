@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { h, onMounted, ref } from 'vue';
-
 import { http } from '@/api/http';
 import { NDataTable, NTag, useMessage } from 'naive-ui';
 

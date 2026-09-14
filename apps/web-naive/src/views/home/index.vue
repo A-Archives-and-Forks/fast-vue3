@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { api } from '@/api';
 
 const router = useRouter();
 
@@ -27,9 +27,38 @@ const techStack = [
   { name: 'Pinia 3', type: 'error' as const },
   { name: 'Vue Router 4', type: 'success' as const },
 ];
+const displayedStats = ref<
+  {
+    label: string;
+    type: 'error' | 'info' | 'success' | 'warning';
+    value: number | string;
+  }[]
+>(stats);
+const loadError = ref('');
+
+onMounted(async () => {
+  try {
+    const data = await api.analytics.dashboardStats();
+    const values = [
+      data.totalUsers,
+      data.todayVisits,
+      data.activeUsers,
+      data.systemUptime,
+    ];
+    const labels = ['总用户', '今日访问', '活跃用户', '系统正常率'];
+    displayedStats.value = stats.map((item, index) => ({
+      ...item,
+      label: labels[index] ?? '统计',
+      value: index === 3 ? `${values[index]}%` : (values[index] ?? 0),
+    }));
+  } catch {
+    loadError.value = '首页统计暂时无法更新，当前显示内置示例';
+  }
+});
 </script>
 
 <template>
+  <p v-if="loadError" role="alert">{{ loadError }}</p>
   <div style="padding: 24px">
     <!-- Welcome Section -->
     <div style="margin-bottom: 24px">
@@ -42,7 +71,7 @@ const techStack = [
 
     <!-- Quick Stats Row -->
     <n-grid :cols="4" :x-gap="16" :y-gap="16" style="margin-bottom: 24px">
-      <n-grid-item v-for="stat in stats" :key="stat.label">
+      <n-grid-item v-for="stat in displayedStats" :key="stat.label">
         <n-card
           embedded
           :bordered="false"

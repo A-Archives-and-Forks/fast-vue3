@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-
 import { api } from '@/api';
 import { IxCollapse, IxCollapsePanel } from '@idux/components/collapse';
 

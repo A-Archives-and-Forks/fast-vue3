@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { TagProps } from 'tdesign-vue-next';
 
-import { useRouter } from 'vue-router';
+import { api } from '@/api';
 
 const router = useRouter();
 
@@ -32,9 +32,35 @@ const techStack: Array<{
   { name: 'Pinia 3', theme: 'default' },
   { name: 'Vue Router 4', theme: 'success' },
 ];
+const displayedStats = ref(stats);
+const loadError = ref('');
+
+onMounted(async () => {
+  try {
+    const data = await api.analytics.dashboardStats();
+    const values = [
+      data.totalUsers,
+      data.todayVisits,
+      data.activeUsers,
+      data.systemUptime,
+    ];
+    const labels = ['总用户', '今日访问', '活跃用户', '系统正常率'];
+    displayedStats.value = stats.map((item, index) => ({
+      ...item,
+      label: labels[index] ?? '统计',
+      value:
+        index === 3
+          ? `${values[index]}%`
+          : (values[index] ?? 0).toLocaleString(),
+    }));
+  } catch {
+    loadError.value = '首页统计暂时无法更新，当前显示内置示例';
+  }
+});
 </script>
 
 <template>
+  <p v-if="loadError" role="alert">{{ loadError }}</p>
   <div style="padding: 24px; margin-bottom: 24px">
     <!-- Welcome Section -->
     <t-typography>
@@ -45,7 +71,7 @@ const techStack: Array<{
 
     <!-- Quick Stats Row -->
     <t-row :gutter="16">
-      <t-col v-for="stat in stats" :key="stat.label" :span="6">
+      <t-col v-for="stat in displayedStats" :key="stat.label" :span="6">
         <t-card :bordered="false">
           <div
             style="

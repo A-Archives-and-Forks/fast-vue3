@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
-
 import { useUserStore } from '@fast-vue3/stores';
 
 import { Message } from '@arco-design/web-vue';

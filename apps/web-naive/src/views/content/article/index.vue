@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { ArticleItem } from '@/api';
 
-import { computed, h, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-
 import { api } from '@/api';
 import {
   NButton,

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-
 import { IxMessage } from '@idux/components';
 
 const loading = ref(false);

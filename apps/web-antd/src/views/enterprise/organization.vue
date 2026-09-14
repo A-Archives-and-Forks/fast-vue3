@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { OrganizationItem } from '@/api';
 
-import { onMounted, ref } from 'vue';
-
 import { api } from '@/api';
 import { message } from 'ant-design-vue';
 

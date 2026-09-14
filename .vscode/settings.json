@@ -1,26 +1,25 @@
 {
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "js/ts.tsdk.path": "./node_modules/typescript/lib",
+  "js/ts.tsdk.promptToUseWorkspaceVersion": true,
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit"
   },
-  "eslint.workingDirectories": [
-    { "pattern": "apps/*/" },
-    { "pattern": "packages/*/" },
-    { "pattern": "packages/@core/*/" },
-    { "pattern": "packages/effects/*/" },
-    { "pattern": "internal/*/" },
-    { "pattern": "internal/lint-configs/*/" }
-  ],
+  "stylelint.validate": ["css", "postcss", "less", "scss", "vue"],
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,
     "**/.turbo": true,
+    "**/.nitro": true,
+    "**/.output": true,
+    "**/coverage": true,
     "**/pnpm-lock.yaml": true
   },
   "files.exclude": {
-    "**/.turbo": true
+    "**/.turbo": true,
+    "**/.nitro": true,
+    "**/.output": true
   }
 }

@@ -103,6 +103,8 @@ pnpm dev:site-antd
 - `mock`：启动 Nitro Mock，并代理到 `http://localhost:5320`。
 - `server`：不启动 Mock，并代理到 `VITE_FAST_VUE3_SERVER_URL`，默认 `http://localhost:8080`。
 
+`pnpm dev:mock` 会为选中的前端启动独立的 Nitro Mock。只运行 5320 端口的 Mock API 可用 `pnpm dev:mock:api`（`pnpm dev:backend-mock` 是别名）；Mock 不会请求 Spring Boot。
+
 也可以只对指定应用临时切换：
 
 ```bash
@@ -118,17 +120,15 @@ VITE_FAST_VUE3_SERVER_URL=http://localhost:8080 pnpm dev:server
 真实后端联调时，不安装本机 Java 也可以用 Docker Desktop 或 OrbStack 启动 PostgreSQL、Redis 与 Spring Boot；两者使用相同的 Compose 命令：
 
 ```bash
-cd /Users/fong/Workspace/personal/frontend/vue/fast-vue3/fast-vue3-server
-cp .env.example .env
-docker compose --profile app up -d --build
-docker compose ps
+pnpm dev:server:api
 
 # 另开终端启动一个指定前端；site 应用同理替换名称
-cd /Users/fong/Workspace/personal/frontend/vue/fast-vue3/fast-vue3
 VITE_DEV_BACKEND=server pnpm dev:web-antd
 ```
 
-如果本机已有 JDK 21，也可以先用 `docker compose up -d` 只启动 PostgreSQL 与 Redis，再执行 `./mvnw spring-boot:run`。
+`pnpm dev:server:api` 在同级 `fast-vue3-server` 仓库运行 Docker Compose；`pnpm dev:server` 只启动所选前端，不启动 Nitro Mock 或 Java 服务。
+
+如果本机已有 JDK 21，也可以在同级 `fast-vue3-server` 目录先用 `docker compose up -d` 启动 PostgreSQL 与 Redis，再执行 `./mvnw spring-boot:run`。
 
 后端健康检查为 `http://localhost:8080/actuator/health`，Swagger 为 `http://localhost:8080/swagger-ui.html`。真实后端开发账号是 `admin / admin123`；Nitro Mock 账号是 `admin / 123456`。
 

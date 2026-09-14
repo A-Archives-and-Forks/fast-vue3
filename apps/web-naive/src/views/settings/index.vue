@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { reactive } from 'vue';
-
 import { useMessage } from 'naive-ui';
 
 const message = useMessage();

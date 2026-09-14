@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { BlogComment, BlogPost } from '@/api';
 
-import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { isLoggedIn } from '@fast-vue3/utils';
 
 import { api } from '@/api';

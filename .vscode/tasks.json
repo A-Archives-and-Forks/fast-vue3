@@ -1,0 +1,89 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Dev: Choose app (Mock)",
+      "type": "process",
+      "command": "pnpm",
+      "args": ["dev:mock"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Choose app (Server)",
+      "type": "process",
+      "command": "pnpm",
+      "args": ["dev:server"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Web AntD (Mock)",
+      "type": "process",
+      "command": "pnpm",
+      "args": ["dev:web-antd"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": { "VITE_DEV_BACKEND": "mock" }
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Web AntD (Server)",
+      "type": "process",
+      "command": "pnpm",
+      "args": ["dev:web-antd"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": { "VITE_DEV_BACKEND": "server" }
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Nitro Mock API",
+      "type": "process",
+      "command": "pnpm",
+      "args": ["dev:mock:api"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Spring API",
+      "type": "process",
+      "command": "pnpm",
+      "args": ["dev:server:api"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Check: Lint",
+      "type": "process",
+      "command": "pnpm",
+      "args": ["lint"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Check: Types",
+      "type": "process",
+      "command": "pnpm",
+      "args": ["typecheck"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build: Web AntD",
+      "type": "process",
+      "command": "pnpm",
+      "args": ["build:web-antd"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    }
+  ]
+}

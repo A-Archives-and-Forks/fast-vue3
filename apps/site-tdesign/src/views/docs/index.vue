@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { api } from '@/api';
+
 interface DocItem {
   title: string;
   desc: string;
@@ -106,9 +108,28 @@ const docGroups: DocGroup[] = [
     ],
   },
 ];
+const shownDocGroups = ref<DocGroup[]>(docGroups);
+const loadError = ref('');
+
+onMounted(async () => {
+  try {
+    const sections = await api.portal.docs();
+    shownDocGroups.value = sections.map((section) => ({
+      category: section.title,
+      items: section.items.map((item) => ({
+        title: item.title,
+        desc: section.description ?? '',
+        meta: '文档',
+      })),
+    }));
+  } catch {
+    loadError.value = '文档目录暂时无法更新，当前显示内置示例';
+  }
+});
 </script>
 
 <template>
+  <p v-if="loadError" role="alert" class="site-container">{{ loadError }}</p>
   <div>
     <section class="site-hero">
       <h1 class="site-hero-title">文档中心</h1>
@@ -120,18 +141,13 @@ const docGroups: DocGroup[] = [
     <section class="site-section">
       <div class="site-container site-container--narrow docs-list">
         <div
-          v-for="(group, gi) in docGroups"
+          v-for="(group, gi) in shownDocGroups"
           :key="group.category"
           v-reveal="gi * 80"
           class="docs-group"
         >
           <h3 class="docs-category">{{ group.category }}</h3>
-          <a
-            v-for="item in group.items"
-            :key="item.title"
-            class="docs-card"
-            href="javascript:void(0)"
-          >
+          <div v-for="item in group.items" :key="item.title" class="docs-card">
             <div class="docs-text">
               <div class="docs-title">{{ item.title }}</div>
               <div class="docs-desc">{{ item.desc }}</div>
@@ -140,7 +156,7 @@ const docGroups: DocGroup[] = [
               <span class="docs-meta">{{ item.meta }}</span>
               <span class="docs-arrow">→</span>
             </div>
-          </a>
+          </div>
         </div>
       </div>
     </section>

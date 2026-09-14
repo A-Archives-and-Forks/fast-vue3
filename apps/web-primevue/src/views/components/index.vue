@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-
 import { useToast } from 'primevue/usetoast';
 const toast = useToast();
 const loading = ref(false);

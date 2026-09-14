@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { FormInstance } from 'element-plus';
 
-import { reactive, ref } from 'vue';
-
 import { api } from '@/api';
 import { Link as GithubLink, Location, Message } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
@@ -36,7 +34,7 @@ async function handleSubmit() {
       name: form.name,
       message: `[${form.subject}] ${form.message}`,
     });
-    ElMessage.success('提交成功，我们会尽快与你联系');
+    ElMessage.success('演示提交成功；当前接口不会保存留言');
     formRef.value?.resetFields();
   } catch {
     ElMessage.error('提交失败，请稍后重试');

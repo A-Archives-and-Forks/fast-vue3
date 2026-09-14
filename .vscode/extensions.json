@@ -1,10 +1,9 @@
 {
   "recommendations": [
     "vue.volar",
-    "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
     "stylelint.vscode-stylelint",
-    "antfu.unocss",
-    "antfu.iconify"
+    "oxc.oxc-vscode",
+    "bradlc.vscode-tailwindcss"
   ]
 }

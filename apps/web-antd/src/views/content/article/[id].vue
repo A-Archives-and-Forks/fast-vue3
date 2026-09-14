@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { ArticleItem } from '@/api';
 
-import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { api } from '@/api';
 import { ArrowLeftOutlined, EditOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';

@@ -1,47 +1,33 @@
 <script setup lang="ts">
-const features = [
-  {
-    title: '多 UI 框架集成',
-    desc: '内置 7 大 UI 框架支持，Ant Design Vue、Element Plus、Naive UI、Arco Design、TDesign、PrimeVue、iDux，通过 create-app 命令一键选择。',
-    icon: '&#127912;',
-  },
-  {
-    title: 'Monorepo 工程体系',
-    desc: '基于 pnpm workspace + Turborepo，统一管理 packages、apps、internal 工具链，依赖复用、增量构建、并行编译。',
-    icon: '&#128230;',
-  },
-  {
-    title: 'TypeScript 全覆盖',
-    desc: '从 tsconfig 统一继承、vue-tsc 类型检查到 auto-import 类型声明，全链路类型安全。',
-    icon: '&#128295;',
-  },
-  {
-    title: '自动按需导入',
-    desc: 'unplugin-auto-import 自动导入 Vue/Router/Pinia API，unplugin-vue-components 自动注册 UI 组件，零手动 import。',
-    icon: '&#9889;',
-  },
-  {
-    title: '主题与样式',
-    desc: '基于 CSS Variables 的主题系统，支持亮色/暗色模式切换，配合 UnoCSS 原子化框架实现高效样式开发。',
-    icon: '&#127912;',
-  },
-  {
-    title: '代码质量保障',
-    desc: 'ESLint + Prettier + Stylelint + Commitlint + Lefthook，提交前自动检查，保证代码风格一致。',
-    icon: '&#128736;',
-  },
-];
+import { api } from '@/api';
+
+const features = ref<{ desc: string; icon: string; title: string }[]>([]);
+const error = ref('');
+
+onMounted(async () => {
+  try {
+    const items = await api.portal.features();
+    features.value = items.map((item, index) => ({
+      icon: ['🎨', '📦', '🔧', '⚡', '🌗', '🔒'][index % 6] ?? '✨',
+      title: item.title,
+      desc: item.description,
+    }));
+  } catch {
+    error.value = '功能特性加载失败，请稍后重试';
+  }
+});
 </script>
 
 <template>
   <div class="features-page">
+    <p v-if="error" role="alert">{{ error }}</p>
     <div class="page-header">
       <h1>产品特性</h1>
       <p>Fast Vue3 为现代前端开发提供完整的工程化解决方案</p>
     </div>
     <div class="grid">
       <div v-for="f in features" :key="f.title" class="card">
-        <span class="card-icon" v-html="f.icon"></span>
+        <span class="card-icon">{{ f.icon }}</span>
         <h2>{{ f.title }}</h2>
         <p>{{ f.desc }}</p>
       </div>

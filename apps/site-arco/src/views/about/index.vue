@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { api } from '@/api';
+
 const projectInfo = [
   { label: '项目名称', value: '@fast-vue3/site-arco' },
   { label: '版本', value: '1.0.0' },
@@ -79,9 +81,22 @@ const architecture = [
     ],
   },
 ];
+const aboutInfo = ref<Awaited<ReturnType<typeof api.portal.about>> | null>(
+  null,
+);
+const loadError = ref('');
+
+onMounted(async () => {
+  try {
+    aboutInfo.value = await api.portal.about();
+  } catch {
+    loadError.value = '关于信息暂时无法更新，当前显示项目信息';
+  }
+});
 </script>
 
 <template>
+  <p v-if="loadError" role="alert" class="site-container">{{ loadError }}</p>
   <div>
     <section class="site-hero">
       <h1 class="site-hero-title">关于 Fast Vue3</h1>
@@ -166,6 +181,36 @@ const architecture = [
               <div class="arch-item-name">{{ item.name }}</div>
               <div class="arch-item-desc">{{ item.desc }}</div>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section v-if="aboutInfo" class="site-section site-section--alt">
+      <div class="site-container">
+        <div class="site-section-head">
+          <h2 class="site-section-title">关于我们</h2>
+          <p class="site-section-desc">{{ aboutInfo.intro }}</p>
+        </div>
+        <div class="site-grid">
+          <div
+            v-for="item in aboutInfo.stats"
+            :key="item.label"
+            class="site-card"
+            style="padding: 24px"
+          >
+            <strong>{{ item.value }}</strong>
+            <p>{{ item.label }}</p>
+          </div>
+        </div>
+        <div class="site-grid" style="margin-top: 24px">
+          <div
+            v-for="person in aboutInfo.team"
+            :key="person.name"
+            class="site-card"
+            style="padding: 24px"
+          >
+            <strong>{{ person.name }}</strong>
+            <p>{{ person.role }}</p>
           </div>
         </div>
       </div>

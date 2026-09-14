@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
-
 const route = useRoute();
 
 // 滚动状态：导航栏投影 + 返回顶部按钮

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-
 import { api } from '@/api';
 import Accordion from 'primevue/accordion';
 import AccordionContent from 'primevue/accordioncontent';

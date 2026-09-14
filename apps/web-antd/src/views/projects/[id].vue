@@ -9,9 +9,6 @@ import type {
   TaskStatus,
 } from '@/api';
 
-import { computed, onMounted, reactive, ref } from 'vue';
-import { useRoute } from 'vue-router';
-
 import { api } from '@/api';
 import { message } from 'ant-design-vue';
 

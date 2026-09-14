@@ -2,9 +2,6 @@
 import type { ArticleItem } from '@/api';
 import type { FormInst } from 'naive-ui';
 
-import { computed, onMounted, reactive, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
 import { api } from '@/api';
 import {
   NButton,
